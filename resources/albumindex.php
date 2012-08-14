@@ -1,0 +1,1 @@
+<?php require( '../../resources/include.albumredirect.php' ); ?>

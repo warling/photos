@@ -1,0 +1,17 @@
+<?php
+
+////////////////////////////////////////////////////////////////////////////////
+
+require( 'configuration.php' );
+define( 'includePath2', '' );
+require( includePath2.'include.constants.php' );
+require( includePath2.'include.types.php' );
+require( includePath2.'include.protocol.php' );
+
+////////////////////////////////////////////////////////////////////////////////
+
+header( 'Location: '.substr( scriptDirectory, 0, strlen( scriptDirectory ) - strlen( scriptDirectoryName ) - 1 ) );
+
+////////////////////////////////////////////////////////////////////////////////
+
+?>

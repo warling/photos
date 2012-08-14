@@ -1,0 +1,178 @@
+
+html { color:silver; background-color:black; line-height:150%; }
+
+body, input, textarea, select { font-family:sans-serif; }
+
+textarea { line-height:150%; }
+
+h1 { font-size:300%; line-height:normal; }
+h2 { font-size:200%; }
+h3 { font-size:150%; }
+h4 { font-size:125%; }
+h5 { font-size:112.5%; }
+h5 { font-size:100%; }
+textarea, select, input { font-size:91%; }
+button { font-weight:bold; text-transform:lowercase; }
+
+table { border-collapse:collapse }
+td { vertical-align:top; page-break-inside:avoid; padding-right:0.5em; }
+
+a { color:white; text-decoration:none; }
+/*a:hover { color:#FF99FF; }*/
+a:hover { color:#b2bd52; }
+
+span.accesskey { text-decoration:underline; }
+
+ol.albumTags { padding-left:0; margin-left:0; }
+ol.albumTags li { display:inline; white-space:nowrap; }
+
+p.error { text-decoration:blink; }
+ul.errors { margin-top:-1em; padding-left:2em; }
+
+form.button { display:inline; }
+form.button div { display:inline; }
+
+#header { border-bottom:1px dotted rgb(55,55,55); }
+#header td { vertical-align:middle; }
+#headerTitle { padding-left:0.5em; }
+/*#headerTitle a:hover { color:silver; }*/
+
+#buttonbar { width:100%; margin-bottom:0.75em; }
+#buttonbar #adminbuttons { text-align:right; }
+
+#accountlinks { float:right; font-size:87.5%; }
+
+#busyCursor { display:block; margin-left:auto; }
+
+#displayAlbumPage, #displayAlbumEditPage { width:5em; }
+
+#adminPage { margin-top:1em; }
+#adminPage ol { padding-left:0; }
+#adminPage li { list-style-type:none; display:inline; }
+#adminPage li:after { content:', '; }
+
+#userAccessPage { margin-top:1em; }
+#userAccessPage #password, #userAccessPage #submit { margin-left:0.5em; }
+
+#userLoginPage { margin-top:1em; }
+#userLoginPage div.field { margin-bottom:0.5em; }
+#userLoginPage label { width:5em; text-align:right; display:block; float:left; margin-right:0.75em; }
+#userLoginPage #password { margin-right:0.375em; margin-bottom:0.5em; }
+#userLoginPage #buttons { display:inline; white-space:nowrap; }
+
+#userUpdatePage { margin-top:1em; }
+#userUpdatePage label { width:8em; }
+#userUpdatePage div.field { margin-top:1em; margin-bottom:-0.5em; }
+#userUpdatePage label { width:5em; text-align:right; display:block; float:left; margin-right:0.75em; }
+#userUpdatePage #password { margin-right:0.375em; }
+
+#userViewPage { margin-top:1em; }
+#userViewPage td { padding-top:0; padding-bottom:0; padding-left:0; }
+
+#albumDeletePage { margin-top:1em; }
+#albumDeletePage p.question { display:inline; }
+#albumDeletePage button.button { width:4em; }
+#albumDeletePage .albumSummary { margin-left:3em; margin-top:2em; }
+#albumDeletePage .albumCreationTimestamp { font-size:125%; }
+#albumDeletePage .albumTitle { font-size:150%; }
+#albumDeletePage .albumSummary p { margin-top:1.5em; }
+
+#albumEditPage { margin-top:1em; }
+#albumEditPage div#buttons { margin-top:1em; }
+#albumEditPage div.fields label { margin-top:1em; display:block; margin-bottom:0.25em; }
+#albumEditPage div.fields input { width:99%; }
+#albumEditPage div.fields textarea { width:99%; }
+#albumEditPage div.checkboxes input { margin-top:1em; margin-bottom:0.25em; }
+#albumEditPage #albumDescription { height:20em; }
+#albumEditPage #albumTags { height:3.75em; }
+#albumEditPage #albumPublish { margin-left:0.5em; vertical-align:bottom; }
+#albumEditPage div.fields input { font-family:sans-serif; }
+
+#albumEditImagesPage { margin-top:1em; }
+#albumEditImagesPage #imageDataGroupWrapper { width:100%; float:left; }
+#albumEditImagesPage #imageDataGroup { margin:0 0 0 135px; min-width:20em; }
+#albumEditImagesPage #imageThumbnailsGroup { float:left; width:120px; margin-left:-100%; }
+#albumEditImagesPage #imageExifGroup { float:left; width:22.5em; margin-left:-22.5em; }
+/**/
+#albumEditImagesPage label { font-weight:bold; }
+#albumEditImagesPage #imageThumbnailsGroup img { display:block; }
+#albumEditImagesPage #imageThumbnailsGroup { text-align:center; }
+#albumEditImagesPage #imageThumbnailsList { width:115px; height:300px; background-color:rgb(32,32,32); overflow:auto; margin-bottom:0.5em; }
+#albumEditImagesPage #imageThumbnailsList img { border:1px solid black; display:block; margin-top:4px; margin-bottom:4px; margin-left:auto; margin-right:auto; text-align:center; opacity:0.5; -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; filter: alpha(opacity=50); cursor:pointer; }
+#albumEditImagesPage #imageThumbnailsList img.nofocus { border-color:rgb(160,160,160); }
+#albumEditImagesPage #imageThumbnailsList img:focus { border-color:white; }
+#albumEditImagesPage #imageThumbnailsControlsGroup .imageThumbnailButton { width:2.5em; margin-left:auto; margin-right:auto; text-align:center; }
+/**/
+#albumEditImagesPage #imageDataGroup label { display:block; }
+#albumEditImagesPage #imageDataGroup input { display:block; width:100%; margin-bottom:0.5em; }
+#albumEditImagesPage #imageDataGroup textarea { display:block; width:100%; margin-bottom:0.5em; }
+/**/
+#albumEditImagesPage #imageDataGroup #imageDescriptionControl { height:30em; }
+#albumEditImagesPage #imageDataGroup #imageTagsControl { height:3em; }
+/**/
+#albumEditImagesPage #imageDataGroup #imageRatingsGroup { margin-top:0.5em; margin-bottom:0.5em; }
+#albumEditImagesPage #imageDataGroup #imageRatingsGroup #imageRatingField { display:inline;}
+#albumEditImagesPage #imageDataGroup #imageRatingsGroup #imageRatingField #imageRatingLabel { margin-right:0.25em; display:inline; }
+#albumEditImagesPage #imageDataGroup #imageRatingsGroup #imageRatingField .imageRating { margin-left:0.125em; margin-right:0.125em; display:inline; font-size:125%; vertical-align:middle; }
+/**/
+#albumEditImagesPage #imageDataGroup #imageRatingsGroup #albumThumbnailField { float:right; }
+#albumEditImagesPage #imageDataGroup #imageRatingsGroup #albumThumbnailField label { display:inline; }
+#albumEditImagesPage #imageDataGroup #imageRatingsGroup #albumThumbnailField input { display:inline; width:auto; }
+/**/
+#albumEditImagesPage #imageDataGroup #imageAddressLabel { display:block; }
+#albumEditImagesPage #imageDataGroup #imageAddressControl { width:25.7em; display:inline; }
+#albumEditImagesPage #imageDataGroup #imageAddressButtonGroup { display:inline; float:right; }
+#albumEditImagesPage #imageDataGroup #imageAddressButtonApplyToAll { margin-right:0; }
+
+#albumEditImagesPage #imageDataGroup #imageLocationGroup { height:4em; } /* Important to set the height, since everything inside it is a float:left */
+#albumEditImagesPage #imageDataGroup #imageLocationGroup .imageCoordinate { width:21.25%; display:inline; float:left; margin-right:5%; }
+#albumEditImagesPage #imageDataGroup #imageLocationGroup #imageHeadingField { margin-right:0 ! important; }
+#albumEditImagesPage #imageDataGroup #imageLocationGroup .units { margin-left:0.5em; font-weight:normal; }
+
+#albumEditImagesPage #imageMapControl { height:200px; margin-bottom:0.5em; width:auto; margin-top:0.5em; }
+
+#albumEditImagesPage #imageExifGroup { overflow:auto; }
+#albumEditImagesPage #imageExifGroup label { font-weight:bold; vertical-align:middle; }
+#albumEditImagesPage #imageExifGroup div div { font-size:85%; line-height:137.5%; }
+#albumEditImagesPage #imageExifSummaryGroup { margin-bottom:1em; }
+#albumEditImagesPage #imageExifCompleteControl { display:none; }
+/*#albumEditImagesPage #imageExifGroup { display:none; }*/
+#albumEditImagesPage #imageMagnified { position:fixed; top:0; left:0; }
+#albumEditImagesPage #imageMagnified div { position:fixed; top:0; left:0; background-color:black; opacity:0.6; -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; filter: alpha(opacity=50); }
+#albumEditImagesPage #imageMagnified img { position:absolute; top:10px; border:1px solid rgb(32,32,32); }
+#albumEditImagesPage #parameters { display:none; }
+#albumEditImagesPage .rated { color:red; }
+
+#albumSummaryPage { margin-top:1em; }
+#albumSummaryPage #albumDate { display:inline; vertical-align:middle; }
+#albumSummaryPage #showHideButton { margin-left:1em; font-size:62.5%; vertical-align:middle; }
+#albumSummaryPage #timestamps { margin-top:0.5em; margin-left:1em; }
+#albumSummaryPage #timestamps td.label { font-size:100%; padding-left:0; }
+#albumSummaryPage #timestamps td.timestamp { font-size:100%; padding-left:0; }
+#albumSummaryPage h2.albumTitle { margin-bottom:0; }
+#albumSummaryPage h3.albumTags { font-size:87.5%; display:inline; }
+#albumSummaryPage ol.albumTags { display:inline; }
+#albumSummaryPage ol.albumTags li { font-size:87.5%; display:inline; }
+#albumSummaryPage div.albumThumbnails { margin-top:1.5em; }
+#albumSummaryPage div.albumThumbnails a { margin:0.5em; }
+#albumSummaryPage div.albumThumbnails img { border:solid 1px silver; vertical-align:middle; }
+#albumSummaryPage div.albumThumbnails img:hover { border-color:#FF99FF; }
+
+#albumSummariesPage { margin-top:1em; }
+#albumSummariesPage .albumTags { font-size:87.5%; }
+#albumSummariesPage #albums { width:99%; }
+#albumSummariesPage #albums td { border:1px dotted rgb(55,55,55); border-right:none; padding:0.5em; }
+#albumSummariesPage #albums td.albumTitle { border-left:none; font-size:50%; min-width:12em; }
+#albumSummariesPage #albums td.albumButtons { text-align:center; width:5em; }
+#albumSummariesPage #albums td.albumButtons button { text-align:center; margin-bottom:0.5em; width:5em; }
+#albumSummariesPage #albums td p { margin:0; }
+#albumSummariesPage #albums td p + p { margin-top:0.75em; }
+#albumSummariesPage #albums td h2 { margin:0; }
+#albumSummariesPage #albums td h3 { margin-top:0.25em; margin-bottom:0; }
+
+#albumUploadPage { margin-top:1em; }
+#albumUploadPage #albumDoResize { vertical-align:top; display:inline; }
+#albumUploadPage #albumPhotoBundle { width:50em; }
+#albumUploadPage div.fields { margin-top:0.5em; }
+#albumUploadPage div.fields label { margin-top:2em; }
+#albumUploadPage div.fields input { display:block; margin-bottom:1em; }
