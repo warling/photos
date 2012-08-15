@@ -2476,7 +2476,6 @@ function displayImagePage( &$pageContent, &$pageStyle, &$pageHead, &$buttonBarUs
 		tab.tab.tab.tab.tab.divTagEnd.newline.
 		tab.tab.tab.tab.divTagEnd.newline.
 		tab.tab.tab.divTagEnd.newline.
-//		'<div style="color:black; font-size:5px; ">now is the timne for all good nen to come to the aid of their country. now is the timne for all good nen to come to the aid of their country. now is the timne for all good nen to come to the aid of their country. now is the timne for all good nen to come to the aid of their country. now is the timne for all good nen to come to the aid of their country. now is the timne for all good nen to come to the aid of their country. now is the timne for all good nen to come to the aid of their country.</div>'.
 		tab.tab.divTagEnd.newline.
 		tab.divTagEnd.doubleNewline.
 
@@ -2623,8 +2622,7 @@ function getAlbumXml( $user, $databaseConnection )
 
 		if ( $imageExifElement->count() )
 		{
-//			unset( $imageExifElement->Artist );
-			unset( $imageExifElement->FileName );
+			unset( $imageExifElement->FileName );	//	Don't include the filename tag for file system security reasons.
 
 			if ( isset( $imageExifElement->Make ) )
 			{
