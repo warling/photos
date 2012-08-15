@@ -437,6 +437,13 @@ class Uploader
 			$versionExifCount = 0;
 			Uploader::readExif( $version->versionFilePath( $databaseConnection ), $versionExif, $versionExifCount, $databaseConnection );
 
+			$versionIptc = emptyString;
+			$versionIptcCount = 0;
+			Uploader::readIptc( $version->versionFilePath( $databaseConnection ), $versionIptc, $versionIptcCount, $databaseConnection );
+
+			$versionExif .= $versionIptc;
+			$versionExifCount += $versionIptcCount;
+
 			$imageExif = $image->imageExif();
 			try
 			{
@@ -532,11 +539,6 @@ class Uploader
 					$image->setImagePhotographer( $photographer );	
 				}
 			}
-
-			$versionIptc = emptyString;
-			$versionIptcCount = 0;
-			Uploader::readIptc( $version->versionFilePath( $databaseConnection ), $versionIptc, $versionIptcCount, $databaseConnection );
-
 
 			$fileItem->setImageId( (int)$imageId );
 			$fileItem->setVersionId( (int)$version->versionId() );
@@ -928,6 +930,33 @@ class Uploader
 				$rating			= Uploader::iptcValue( $iptc, '2#010' );
 
 				if ( isEmptyString( $title ) ) $title = Uploader::iptcValue( $iptc, '2#105' );
+
+				$xml = emptyString;
+				$count = 0;
+
+				if ( isNonEmptyString( $title ) )
+				{
+					$xml .= '<IPTCTitle>'.$title.'</IPTCTitle>';
+					$count++;
+				}
+
+				if ( isNonEmptyString( $caption ) )
+				{
+					$xml .= '<IPTCCaption>'.$caption.'</IPTCCaption>';
+					$count++;
+				}
+
+				if ( isNonEmptyString( $photographer ) )
+				{
+					$xml .= '<IPTCPhotographer>'.$photographer.'</IPTCPhotographer>';
+					$count++;
+				}
+
+				if ( isNonEmptyString( $rating ) )
+				{
+					$xml .= '<IPTCRating>'.$rating.'</IPTCRating>';
+					$count++;
+				}
 
 			/*	echo
 					$title.newline.
