@@ -519,9 +519,17 @@ class Uploader
 
 						$timestampString = timestampString( $timestamp );
 						assert( 'isNonEmptyString( $timestampString )' );
-						
+
 						$image->setImageTimestamp( $timestampString );
 					}
+				}
+
+				//	Try to set the photographer using the Artist tag, if it
+				//	exists, else try the CameraOwnerName tag:
+				$photographer = xmlStringValue( 'Artist', $versionExif, xmlStringValue( 'CameraOwnerName', $versionExif ) );
+				if ( isNonEmptyString( $photographer ) )
+				{
+					$image->setImagePhotographer( $photographer );	
 				}
 			}
 
@@ -798,7 +806,7 @@ class Uploader
 						//	Map hex tag ids to tag names:
 						switch ( $name )
 						{
-							case 'a430': $name = 'OwnerName'; break;
+							case 'a430': $name = 'CameraOwnerName'; break;
 							case 'a431': $name = 'SerialNumber'; break;
 							case 'a432': $name = 'LensInfo'; break;
 							case 'a433': $name = 'LensMake'; break;
