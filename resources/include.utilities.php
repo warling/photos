@@ -116,7 +116,7 @@ function randomCharacterString( $length )
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-function xmlStringValue( $tagName, $xmlString )
+function xmlStringValue( $tagName, $xmlString, $default = emptyString )
 {
 	assert( 'isNonEmptyString( $tagName )' );
 	assert( 'isString( $xmlString )' );
@@ -126,7 +126,7 @@ function xmlStringValue( $tagName, $xmlString )
 
 	$tagStart = strpos( $xmlString, $tagOpen );
 
-	if ( $tagStart === false ) return emptyString;
+	if ( $tagStart === false ) return $default;
 
 	$valueStart = ( $tagStart + strlen( $tagOpen ) );
 
