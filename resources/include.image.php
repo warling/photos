@@ -451,7 +451,7 @@ class Image extends Object
 
 	public function setImageTimestamp( $imageTimestamp )
 	{
-		assert( 'isEmptyString( $imageTimestamp ) || isPositiveIntString( $imageTimestamp )' );
+		assert( 'isString( $imageTimestamp )' );
 
 		if ( $imageTimestamp !== $this->imageTimestamp )
 		{

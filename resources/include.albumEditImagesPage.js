@@ -929,7 +929,7 @@ var AlbumEditImagesPage = new function()
 				{
 					if ( $mostRecentTarget != undefined )
 					{
-						Album.albumThumbnailImageId = ( $( e.target ).attr( 'checked' ) == true ? $mostRecentTarget.data( 'image' ).imageId : undefined );
+						Album.albumThumbnailImageId = ( $( e.target ).attr( 'checked' ) == 'checked' ? $mostRecentTarget.data( 'image' ).imageId : undefined );
 					}
 				}
 			}
@@ -1103,7 +1103,7 @@ var AlbumEditImagesPage = new function()
 					//	Clear the marker:
 					marker.setVisible( false );
 
-					//	Store the coordinates in the image object:
+					//	Clear the coordinates in the image object:
 					var $image = $mostRecentTarget.data( 'image' );
 
 					$image.imageAddress = null;
@@ -1112,7 +1112,7 @@ var AlbumEditImagesPage = new function()
 					$image.imageAltitude = null;
 					$image.imageHeading = null;
 
-					//	Update the coordinate controls:
+					//	Clear the coordinate controls:
 					$imageAddressControl.val( null );
 					$imageLatitudeControl.val( null );
 					$imageLongitudeControl.val( null );
@@ -1446,8 +1446,8 @@ var AlbumEditImagesPage = new function()
 							{
 								var location = new google.maps.LatLng( latitude, longitude );
 
-								geocoder.geocode( { 'latLng' : location }, ImageLongitudeControl.onAddressReturn );
-								elevator.getElevationForLocations( { 'locations' : [ location ] }, ImageLongitudeControl.onElevationReturn );
+								geocoder.geocode( { 'latLng' : location }, ImageLatitudeControl.onAddressReturn );
+								elevator.getElevationForLocations( { 'locations' : [ location ] }, ImageLatitudeControl.onElevationReturn );
 
 								panned = ImageMapControl.panTo( location );
 							}

@@ -473,11 +473,11 @@ class Uploader
 
 					//	If the version's description is longer than the
 					//	current image description use it instead. Potentially
-					//	error-prone, but probably better than nothing:
+					//	error-prone, but probably better than no check at all:
 					if ( strlen( $versionDescription ) > strlen( $imageDescription ) ) $image->setImageDescription( $versionDescription );
 				}
 
-				//	Try to update the GPS data if it exists:
+				//	Try to set the GPS data if it exists:
 				$latitudeHemisphere = trim( xmlStringValue( 'GPSLatitudeRef', $versionExif ) );
 				if ( isNonEmptyString( $latitudeHemisphere ) )
 				{
@@ -492,6 +492,36 @@ class Uploader
 					$longitudeString = xmlStringValue( 'GPSLongitude', $versionExif );
 					$longitudeValue = Uploader::gpsDecimalValue( $longitudeHemisphere, $longitudeString );
 					$image->setImageLongitude( (string)$longitudeValue );
+				}
+
+				$altitudeString = xmlStringValue( 'GPSAltitude', $versionExif );
+				if ( isNonEmptyString( $altitudeString ) )
+				{
+					$altitudeValue = Uploader::gpsDoubleValue( $altitudeString );
+					$image->setImageAltitude( (string)$altitudeValue );
+				}
+
+				$headingString = xmlStringValue( 'GPSImgDirection', $versionExif );
+				if ( isNonEmptyString( $headingString ) )
+				{
+					$headingValue = Uploader::gpsDoubleValue( $headingString );
+					$image->setImageHeading( (string)$headingValue );
+				}
+
+				//	Try to set the timestamp if it exists:
+				$timestampString = xmlStringValue( 'DateTimeOriginal', $versionExif );
+				if ( isNonEmptyString( $timestampString ) )
+				{
+					$timestamp = strtotime( $timestampString );
+					if ( $timestamp != false )
+					{
+						assert( 'isPositiveInt( $timestamp )' );
+
+						$timestampString = timestampString( $timestamp );
+						assert( 'isNonEmptyString( $timestampString )' );
+						
+						$image->setImageTimestamp( $timestampString );
+					}
 				}
 			}
 

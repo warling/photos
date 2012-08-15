@@ -2856,9 +2856,9 @@ function getTimestampXml( $databaseConnection )
 
 	$timestamp = strtotime( $string );
 
-	if ( isPositiveInt( $timestamp ) ) $string = timestampString( $timestamp );
+	echo ( isPositiveInt( $timestamp ) ? timestampString( $timestamp ) : emptyString );
 
-	echo $string; exit;
+	exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
