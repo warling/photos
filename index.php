@@ -1824,48 +1824,15 @@ function displayAdminTestPage( &$pageContent, $user, $databaseConnection )
 	if ( isNotValidUser( $user ) ) return;
 	if ( $user->isNotAdmin() ) return;
 
-	$fileName = 'a0002u001i003v04 Test II.jpg';
-	$userId = keyUserId;
-	$albumNumber = keyAlbumNumber;
-	$imageNumber = keyImageNumber;
-	$versionNumber = keyVersionNumber;
-	$fileTitle = 'Hello';
-	$fileExtension = 'World!';
-	parseFileName( $fileName, $userId, $albumNumber, $imageNumber, $versionNumber, $fileTitle, $fileExtension );
-
 	$pageContent .=
 		'<div id="adminTestPage">'.doubleNewline;
 
-	$userId = '1';
-	$albumNumber = '23';
-	$imageNumber = '2';
-	$versionNumber = versionNumberLarge;
-	$versionId = '38';
+	$address = '44 Clarence Avenue Southeast, Minneapolis, MN 55414';
 
-	$image = Image::byImageNumber( $userId, $albumNumber, $imageNumber, $databaseConnection );
-	assert( 'isValidImage( $image )' );
-
-//	$result = User::getByUserId( $userId, $user2, $databaseConnection );
-
-	$album = Album::albumByAlbumId( $image->albumId(), $databaseConnection );
-	assert( 'isValidAlbum( $album )' );
-
-//	$result = Album::getByAlbumId( $imageAlbum->albumId(), $user3, $album3, $databaseConnection );
-
-//	$result = User::getByUserId( $userId, $user2, $databaseConnection );
-
-	$image = Image::imageByImageNumber( $userId, $albumNumber, $imageNumber, $databaseConnection );
-	assert( 'isValidImage( $image )' );
-
-	$image = Image::imageBImageId( $image->imageId(), $databaseConnection );
-	assert( 'isValidImage( $image )' );
-
-	$version = Version::versionByVersionId( $versionId, $databaseConnection );
-	assert( 'isValidVersion( $version )' );
-
-//	$result = Album::getByUserId( $userId, $user4, $albums, $databaseConnection );
-
-	$pageContent .= $version->versionFilePath( $databaseConnection );
+	$pageContent .= pTag.geocodeUsingOpenStreetMap( urlencode( $address ) ).pTagEnd.doubleNewline;
+	$pageContent .= pTag.reverseGeocodeUsingOpenStreetMap( 44.96766, -93.21132 ).pTagEnd.doubleNewline;
+	$pageContent .= pTag.geocodeUsingGoogleMaps( urlencode( $address ) ).pTagEnd.doubleNewline;
+	$pageContent .= pTag.reverseGeocodeUsingGoogleMaps( 44.96766, -93.21132 ).pTagEnd.doubleNewline;
 
 	$pageContent .=
 		divTagEnd.newline;
