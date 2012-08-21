@@ -36,6 +36,8 @@ define( 'liTagEnd', '</li>' );
 define( 'pTag', '<p>' );
 define( 'pTagEnd', '</p>' );
 define( 'pErrorTag', '<p class="error">' );
+define( 'preTag', '<pre>' );
+define( 'preTagEnd', '</pre>' );
 define( 'spanTagEnd', '</span>' );
 define( 'tableTag', '<table>' );
 define( 'tableTagEnd', '</table>' );
