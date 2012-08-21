@@ -441,10 +441,22 @@ class Uploader
 			$versionIptcCount = 0;
 			Uploader::readIptc( $version->versionFilePath( $databaseConnection ), $versionIptc, $versionIptcCount, $databaseConnection );
 
+			//	Add the IPTC data to the EXIF data. I don't know if this is
+			//	the right approach or whether IPTC should be in its own
+			//	separate database field, but for the moment I'm treating
+			//	it all as "metadata":
 			$versionExif .= $versionIptc;
 			$versionExifCount += $versionIptcCount;
 
+/*			$versionXmp = emptyString;
+			$versionXmpCount = 0;
+			Uploader::readXmp( $version->versionFilePath( $databaseConnection ), $versionXmp, $versionXmpCount, $databaseConnection );*/
+			//	Note: I'm not doing anything with XMP data at the moment.
+
+			//	Get the image's existing EXIF data:
 			$imageExif = $image->imageExif();
+
+			//	Convert the image EXIF data into an XML data structure:
 			try
 			{
 				$useInternalErrors = libxml_use_internal_errors( true );
@@ -462,7 +474,9 @@ class Uploader
 			//	current image exif with the version's exif. Another approach
 			//	would be to try to merge the two in case some tags exist in one
 			//	but not the other, and allow the new version exif to win any
-			//	conflicts, but that seems like overkill (at least for now):
+			//	conflicts, but that seems like overkill (at least for now). In
+			//	any case, my current approach definitely has room for error and
+			//	could potentially be improved at some future point if necessary:
 			if ( $versionExifCount > $imageExifCount )
 			{
 				//	Replace the image's exif data with the version's exif data:
@@ -516,7 +530,7 @@ class Uploader
 				}
 
 				//	Try to set the timestamp if it exists:
-				$timestampString = xmlStringValue( 'DateTimeOriginal', $versionExif );
+				$timestampString = xmlStringValue( 'DateTimeOriginal', $versionExif, xmlStringValue( 'IPTCDateCreated', $versionExif ).space.xmlStringValue( 'IPTCTimeCreated', $versionExif ) );
 				if ( isNonEmptyString( $timestampString ) )
 				{
 					$timestamp = strtotime( $timestampString );
@@ -532,11 +546,46 @@ class Uploader
 				}
 
 				//	Try to set the photographer using the Artist tag, if it
-				//	exists, else try the CameraOwnerName tag:
-				$photographer = xmlStringValue( 'Artist', $versionExif, xmlStringValue( 'CameraOwnerName', $versionExif ) );
+				//	exists, else try the CameraOwnerName tag, else try the
+				//	IPTCCreator tag, then the IPTCProvider tag:
+				$photographer = xmlStringValue( 'Artist', $versionExif, xmlStringValue( 'CameraOwnerName', $versionExif, xmlStringValue( 'IPTCCreator', $versionExif, xmlStringValue( 'IPTCProvider', $versionExif ) ) ) );
 				if ( isNonEmptyString( $photographer ) )
 				{
 					$image->setImagePhotographer( $photographer );	
+				}
+
+				//	Try to set the keywords:
+				$keywords = xmlStringValue( 'IPTCKeywords' , $versionExif );
+				if ( isNonEmptyString( $keywords ) )
+				{
+					$image->setImageTags( $keywords );
+				}
+
+				//	Try to set the address:
+				$address = emptyString;
+				$city = xmlStringValue( 'IPTCCity', $versionExif );
+				if ( isNonEmptyString( $city ) )
+				{
+					$address = $city;
+				}
+
+				$state = xmlStringValue( 'IPTCStateProvince', $versionExif );
+				if ( isNonEmptyString( $state ) )
+				{
+					if ( isNonEmptyString( $address ) ) $address .= comma.space;
+					$address .= $state;
+				}
+
+				$country = xmlStringValue( 'IPTCCountry', $versionExif );
+				if ( isNonEmptyString( $country ) )
+				{
+					if ( isNonEmptyString( $address ) ) $address .= comma.space;
+					$address .= $country;
+				}
+
+				if ( isNonEmptyString( $address ) )
+				{
+					$image->setImageAddress( $address );
 				}
 			}
 
@@ -911,6 +960,25 @@ class Uploader
 
 	////////////////////////////////////////////////////////////////////////////////
 
+	private static function iptcValues( $array, $key )
+	{
+		assert( 'isArray( $array )' );
+		assert( 'isNonEmptyString( $key )' );
+
+		if ( array_key_exists( $key, $array ) )
+		{
+			$subarray = $array[$key];
+			assert( 'isNonEmptyArray( $subarray )' );
+			assert( 'count( $subarray ) > 0' );
+
+			return $subarray;
+		}
+
+		return array();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+
 	private static function readIptc( $filePath, &$xml, &$count, $databaseConnection )
 	{
 		assert( 'isFile( $filePath )' );
@@ -924,47 +992,138 @@ class Uploader
 
 			if ( isArray( $iptc ) )
 			{
-				$title			= Uploader::iptcValue( $iptc, '2#005' );
-				$caption		= Uploader::iptcValue( $iptc, '2#120' );
-				$photographer	= Uploader::iptcValue( $iptc, '2#080' );
-				$rating			= Uploader::iptcValue( $iptc, '2#010' );
+				echo '<pre>'; var_dump( $iptc ); echo '</pre>';
 
-				if ( isEmptyString( $title ) ) $title = Uploader::iptcValue( $iptc, '2#105' );
-
-				$xml = emptyString;
-				$count = 0;
-
+				$title = Uploader::iptcValue( $iptc, '2#005' );
 				if ( isNonEmptyString( $title ) )
 				{
 					$xml .= '<IPTCTitle>'.$title.'</IPTCTitle>';
 					$count++;
 				}
 
+				$headline = Uploader::iptcValue( $iptc, '2#105' );
+				if ( isNonEmptyString( $headline ) )
+				{
+					$xml .= '<IPTCHeadline>'.$headline.'</IPTCHeadline>';
+					$count++;
+				}
+
+				$caption = Uploader::iptcValue( $iptc, '2#120' );
 				if ( isNonEmptyString( $caption ) )
 				{
 					$xml .= '<IPTCCaption>'.$caption.'</IPTCCaption>';
 					$count++;
 				}
 
-				if ( isNonEmptyString( $photographer ) )
+				$keywords = Uploader::iptcValues( $iptc, '2#025' );
+				if ( isNonEmptyArray( $keywords ) )
 				{
-					$xml .= '<IPTCPhotographer>'.$photographer.'</IPTCPhotographer>';
+					$xml .= '<IPTCKeywords>'.implode( comma.space, $keywords ).'</IPTCKeywords>';
 					$count++;
 				}
 
-				if ( isNonEmptyString( $rating ) )
+				$urgency = Uploader::iptcValue( $iptc, '2#010' );
+				if ( isNonEmptyString( $urgency ) )
 				{
-					$xml .= '<IPTCRating>'.$rating.'</IPTCRating>';
+					$xml .= '<IPTCUrgency>'.$urgency.'</IPTCUrgency>';
 					$count++;
 				}
 
-			/*	echo
-					$title.newline.
-					$caption.newline.
-					$photographer.newline.
-					$rating;*/
+				$creator = Uploader::iptcValue( $iptc, '2#080' );
+				if ( isNonEmptyString( $creator ) )
+				{
+					$xml .= '<IPTCCreator>'.$creator.'</IPTCCreator>';
+					$count++;
+				}
+
+				$provider = Uploader::iptcValue( $iptc, '2#110' );
+				if ( isNonEmptyString( $provider ) )
+				{
+					$xml .= '<IPTCProvider>'.$provider.'</IPTCProvider>';
+					$count++;
+				}
+
+				$dateCreated = Uploader::iptcValue( $iptc, '2#055' );
+				if ( isNonEmptyString( $dateCreated ) )
+				{
+					$xml .= '<IPTCDateCreated>'.$dateCreated.'</IPTCDateCreated>';
+					$count++;
+				}
+
+				$timeCreated = Uploader::iptcValue( $iptc, '2#060' );
+				if ( isNonEmptyString( $timeCreated ) )
+				{
+					$xml .= '<IPTCTimeCreated>'.$timeCreated.'</IPTCTimeCreated>';
+					$count++;
+				}
+
+				$city = Uploader::iptcValue( $iptc, '2#090' );
+				if ( isNonEmptyString( $city ) )
+				{
+					$xml .= '<IPTCCity>'.$city.'</IPTCCity>';
+					$count++;
+				}
+
+				$state = Uploader::iptcValue( $iptc, '2#095' );
+				if ( isNonEmptyString( $state ) )
+				{
+					$xml .= '<IPTCStateProvince>'.$state.'</IPTCStateProvince>';
+					$count++;
+				}
+
+				$country = Uploader::iptcValue( $iptc, '2#101' );
+				if ( isNonEmptyString( $country ) )
+				{
+					$xml .= '<IPTCCountry>'.$country.'</IPTCCountry>';
+					$count++;
+				}
+
+				$copyrightNotice = Uploader::iptcValue( $iptc, '2#116' );
+				if ( isNonEmptyString( $copyrightNotice ) )
+				{
+					$xml .= '<IPTCCopyrightNotice>'.$copyrightNotice.'</IPTCCopyrightNotice>';
+					$count++;
+				}
 			}
 		}
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	private static function readXmp( $filePath, &$xml, &$count, $databaseConnection )
+	{
+		$chunkSize = 1024; // bytes
+
+		$filePointer = fopen( $filePath, 'r' );
+		assert( '$filePointer !== false ' );
+
+		$foundStart = false;
+		while ( ( $chunk = fread( $filePointer, $chunkSize ) ) !== false )
+		{
+			if ( ( $index = strpos( $chunk, '<x:xmpmeta' ) ) !== false )
+			{
+				$buffer .= substr( $chunk, index );
+				$foundStart = true;
+			}
+			elseif ( ( $index = strpos( $chunk, '</x:xmpmeta>' ) ) !== false )
+			{
+				$buffer .= substr( $chunk, 0, $index + 12 );
+				break;
+			}
+			elseif ( $foundStart )
+			{
+				$buffer .= $chunk;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		$result = fclose( $filePointer );
+		assert( '$result === true' );
 
 		return true;
 	}
