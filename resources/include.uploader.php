@@ -482,6 +482,8 @@ class Uploader
 				//	Replace the image's exif data with the version's exif data:
 				$image->setImageExif( $versionExif );
 
+				////////////////////////////////////////////////////////////////
+
 				//	Find the contents of any ImageDescription tag and use it
 				//	as the image's caption:
 				$versionDescription = xmlStringValue( 'ImageDescription', $versionExif );
@@ -498,70 +500,9 @@ class Uploader
 					if ( strlen( $versionDescription ) > strlen( $imageDescription ) ) $image->setImageDescription( $versionDescription );
 				}
 
-				//	Try to set the GPS data if it exists:
-				$latitudeHemisphere = trim( xmlStringValue( 'GPSLatitudeRef', $versionExif ) );
-				if ( isNonEmptyString( $latitudeHemisphere ) )
-				{
-					$latitudeString = xmlStringValue( 'GPSLatitude', $versionExif );
-					$latitudeValue = Uploader::gpsDecimalValue( $latitudeHemisphere, $latitudeString );
-					$image->setImageLatitude( (string)$latitudeValue );
-				}
+				////////////////////////////////////////////////////////////////
 
-				$longitudeHemisphere = trim( xmlStringValue( 'GPSLongitudeRef', $versionExif ) );
-				if ( isNonEmptyString( $longitudeHemisphere ) )
-				{
-					$longitudeString = xmlStringValue( 'GPSLongitude', $versionExif );
-					$longitudeValue = Uploader::gpsDecimalValue( $longitudeHemisphere, $longitudeString );
-					$image->setImageLongitude( (string)$longitudeValue );
-				}
-
-				$altitudeString = xmlStringValue( 'GPSAltitude', $versionExif );
-				if ( isNonEmptyString( $altitudeString ) )
-				{
-					$altitudeValue = Uploader::gpsDoubleValue( $altitudeString );
-					$image->setImageAltitude( (string)$altitudeValue );
-				}
-
-				$headingString = xmlStringValue( 'GPSImgDirection', $versionExif );
-				if ( isNonEmptyString( $headingString ) )
-				{
-					$headingValue = Uploader::gpsDoubleValue( $headingString );
-					$image->setImageHeading( (string)$headingValue );
-				}
-
-				//	Try to set the timestamp if it exists:
-				$timestampString = xmlStringValue( 'DateTimeOriginal', $versionExif, xmlStringValue( 'IPTCDateCreated', $versionExif ).space.xmlStringValue( 'IPTCTimeCreated', $versionExif ) );
-				if ( isNonEmptyString( $timestampString ) )
-				{
-					$timestamp = strtotime( $timestampString );
-					if ( $timestamp != false )
-					{
-						assert( 'isPositiveInt( $timestamp )' );
-
-						$timestampString = timestampString( $timestamp );
-						assert( 'isNonEmptyString( $timestampString )' );
-
-						$image->setImageTimestamp( $timestampString );
-					}
-				}
-
-				//	Try to set the photographer using the Artist tag, if it
-				//	exists, else try the CameraOwnerName tag, else try the
-				//	IPTCCreator tag, then the IPTCProvider tag:
-				$photographer = xmlStringValue( 'Artist', $versionExif, xmlStringValue( 'CameraOwnerName', $versionExif, xmlStringValue( 'IPTCCreator', $versionExif, xmlStringValue( 'IPTCProvider', $versionExif ) ) ) );
-				if ( isNonEmptyString( $photographer ) )
-				{
-					$image->setImagePhotographer( $photographer );	
-				}
-
-				//	Try to set the keywords:
-				$keywords = xmlStringValue( 'IPTCKeywords' , $versionExif );
-				if ( isNonEmptyString( $keywords ) )
-				{
-					$image->setImageTags( $keywords );
-				}
-
-				//	Try to set the address:
+				//	Try to extract the address:
 				$address = emptyString;
 				$city = xmlStringValue( 'IPTCCity', $versionExif );
 				if ( isNonEmptyString( $city ) )
@@ -583,9 +524,170 @@ class Uploader
 					$address .= $country;
 				}
 
+				//	If we have a non-empty address, set it:
 				if ( isNonEmptyString( $address ) )
 				{
 					$image->setImageAddress( $address );
+				}
+
+				////////////////////////////////////////////////////////////////
+
+				//	Try to set the GPS data if it exists:
+				$latitudeHemisphere = trim( xmlStringValue( 'GPSLatitudeRef', $versionExif ) );
+				$latitude = emptyString;
+				if ( isNonEmptyString( $latitudeHemisphere ) )
+				{
+					$latitude = xmlStringValue( 'GPSLatitude', $versionExif );
+					$latitude = Uploader::gpsDecimalString( $latitudeHemisphere, $latitude );
+					$image->setImageLatitude( $latitude );
+				}
+
+				$longitudeHemisphere = trim( xmlStringValue( 'GPSLongitudeRef', $versionExif ) );
+				$longitude = emptyString;
+				if ( isNonEmptyString( $longitudeHemisphere ) )
+				{
+					$longitude = xmlStringValue( 'GPSLongitude', $versionExif );
+					$longitude = Uploader::gpsDecimalString( $longitudeHemisphere, $longitude );
+					$image->setImageLongitude( $longitude );
+				}
+
+				$altitude = xmlStringValue( 'GPSAltitude', $versionExif );
+				if ( isNonEmptyString( $altitude ) )
+				{
+					$altitude = Uploader::gpsDoubleString( $altitude );
+					$image->setImageAltitude( $altitude );
+				}
+
+				$heading = xmlStringValue( 'GPSImgDirection', $versionExif );
+				if ( isNonEmptyString( $heading ) )
+				{
+					$heading = Uploader::gpsDoubleString( $heading );
+					$image->setImageHeading( $heading );
+				}
+
+				////////////////////////////////////////////////////////////////
+
+				//	Assume we want to enable geocoding and reverse geocoding:
+				$geocode = true;
+
+				//	If we didn't enable geocoding, do nothing:
+				if ( !$geocode )
+				{
+					//	Do nothing.
+				}
+				//	If we have an address, set it; in addition, if the latitude
+				//	and longitude have not both been set, then attempt to look
+				//	those up:
+				else if ( isNonEmptyString( $address ) )
+				{
+					//	If the latitude and longitude have not both been set
+					//	then attempt to look them up:
+					if ( isEmptyString( $latitude ) && isEmptyString( $longitude ) )
+					{
+						//	Look up the location of this address:
+						for ( $i = 0; $i < 5; $i++ )
+						{
+							//	Get the location:
+							$location = geocode( $address );
+
+							//	If we were successful, bug out:
+							if ( $location !== false ) break;
+
+							//	Sleep half a second before trying again:
+							usleep( 500000 );
+						}
+
+						//	If it was successful, extract the coordinates:
+						if ( $location !== false )
+						{
+							//	Extract the coordinates:
+							$latitude = $location->latitude();
+							assert( 'isNumericString( $latitude )' );
+
+							$longitude = $location->longitude();
+							assert( 'isNumericString( $longitude )' );
+
+							//	Store the coordinates:
+							$image->setImageLatitude( $latitude );
+							$image->setImageLongitude( $longitude );
+
+							//	Now try to get the elevation using this:
+						}
+					}
+				}
+				//	If we have location coordinates but no address, attempt to
+				//	look up the address using those coordinates:
+				else
+				{
+					//	If the latitude and longitude have both been set then attempt
+					//	to look up the address associated with those coordinates:
+					if ( isNumericString( $latitude ) && isNumericString( $longitude ) )
+					{
+						//	Look up the address of this location:
+						for ( $i = 0; $i < 5; $i++ )
+						{
+							//	Get the location:
+							$location = reverseGeocode( $latitude, $longitude );
+
+							//	If we were successful, bug out:
+							if ( $location !== false ) break;
+
+							//	Sleep half a second before trying again:
+							usleep( 500000 );
+						}
+
+						//	If it was successful, extract the address:
+						if ( $location !== false )
+						{
+							//	Extract the address:
+							$address = $location->address();
+							assert( 'isString( $address )' );
+
+							//	Store the address:
+							$image->setImageAddress( $address );
+
+							//	Now try to get the elevation using this:
+						}
+
+					}
+				}
+
+				////////////////////////////////////////////////////////////////
+
+				//	Try to set the timestamp if it exists:
+				$timestampString = xmlStringValue( 'DateTimeOriginal', $versionExif, xmlStringValue( 'IPTCDateCreated', $versionExif ).space.xmlStringValue( 'IPTCTimeCreated', $versionExif ) );
+				if ( isNonEmptyString( $timestampString ) )
+				{
+					$timestamp = strtotime( $timestampString );
+					if ( $timestamp != false )
+					{
+						assert( 'isPositiveInt( $timestamp )' );
+
+						$timestampString = timestampString( $timestamp );
+						assert( 'isNonEmptyString( $timestampString )' );
+
+						$image->setImageTimestamp( $timestampString );
+					}
+				}
+
+				////////////////////////////////////////////////////////////////
+
+				//	Try to set the photographer using the Artist tag, if it
+				//	exists, else try the CameraOwnerName tag, else try the
+				//	IPTCCreator tag, then the IPTCProvider tag:
+				$photographer = xmlStringValue( 'Artist', $versionExif, xmlStringValue( 'CameraOwnerName', $versionExif, xmlStringValue( 'IPTCCreator', $versionExif, xmlStringValue( 'IPTCProvider', $versionExif ) ) ) );
+				if ( isNonEmptyString( $photographer ) )
+				{
+					$image->setImagePhotographer( $photographer );	
+				}
+
+				////////////////////////////////////////////////////////////////
+
+				//	Try to set the keywords:
+				$keywords = xmlStringValue( 'IPTCKeywords' , $versionExif );
+				if ( isNonEmptyString( $keywords ) )
+				{
+					$image->setImageTags( $keywords );
 				}
 			}
 
@@ -893,7 +995,7 @@ class Uploader
 
 	////////////////////////////////////////////////////////////////////////////////
 
-	private static function gpsDecimalValue( $hemisphere, $value )
+	private static function gpsDecimalString( $hemisphere, $value )
 	{
 		assert( '( $hemisphere === emptyString ) || ( $hemisphere === "N" ) || ( $hemisphere === "S" ) || ( $hemisphere === "E" ) || ( $hemisphere === "W" )' );
 
@@ -901,18 +1003,18 @@ class Uploader
 		$valueArrayCount = count( $valueArray );
 		assert( '( $valueArrayCount > -1 ) && ( $valueArrayCount < 4 )' );
 
-		$degrees = ( $valueArrayCount > 0 ? Uploader::gpsDoubleValue( $valueArray[0] ) : 0.0 );
-		$minutes = ( $valueArrayCount > 1 ? Uploader::gpsDoubleValue( $valueArray[1] ) : 0.0 );
-		$seconds = ( $valueArrayCount > 2 ? Uploader::gpsDoubleValue( $valueArray[2] ) : 0.0 );
+		$degrees = ( $valueArrayCount > 0 ? Uploader::gpsDoubleString( $valueArray[0] ) : 0.0 );
+		$minutes = ( $valueArrayCount > 1 ? Uploader::gpsDoubleString( $valueArray[1] ) : 0.0 );
+		$seconds = ( $valueArrayCount > 2 ? Uploader::gpsDoubleString( $valueArray[2] ) : 0.0 );
 
 		$flip =  ( ( ( $hemisphere === 'W' ) || ( $hemisphere === 'S' ) ) ? -1.0 : 1.0 );
 
-		return $flip * ( $degrees + ( $minutes / 60.0 ) + ( $seconds / 3600.0 ) );
+		return (string)( $flip * ( $degrees + ( $minutes / 60.0 ) + ( $seconds / 3600.0 ) ) );
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
 
-	private static function gpsDoubleValue( $value )
+	private static function gpsDoubleString( $value )
 	{
 		assert( 'isString( $value )' );
 
@@ -931,7 +1033,7 @@ class Uploader
 
 		assert( 'isNonEmptyNumericString( $parts[1] )' );
 		assert( '(double)$parts[1] != 0' );
-		return ( (double)$parts[0] / (double)$parts[1] );
+		return (string)( (double)$parts[0] / (double)$parts[1] );
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -992,8 +1094,6 @@ class Uploader
 
 			if ( isArray( $iptc ) )
 			{
-				echo '<pre>'; var_dump( $iptc ); echo '</pre>';
-
 				$title = Uploader::iptcValue( $iptc, '2#005' );
 				if ( isNonEmptyString( $title ) )
 				{
