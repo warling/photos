@@ -416,29 +416,51 @@ function fetchContent( $url )
 
 class GeocodeLocation
 {
-	function __construct( $latitude, $longitude, $address = emptyString )
+	public function __construct( $latitude, $longitude, $address = emptyString )
 	{
-		assert( 'isNumeric( $latitude )' );
-		assert( 'isNumeric( $longitude )' );
+		assert( 'isNumericString( $latitude )' );
+		assert( 'isNumericString( $longitude )' );
 		assert( 'isString( $address )' );
 
-		$this->latitude = (double)$latitude;
-		$this->longitude = (double)$longitude;
+		$this->latitude = $latitude;
+		$this->longitude = $longitude;
 		$this->address = $address;
 	}
 
 	////////////////////////////////////////////////////////////////////////////
 
-	function __toString()
+	public function __toString()
 	{
 		//	Assemble the latitude and longitude inside parentheses:
-		$s = leftParenthesis.$this->latitude.comma.$this->longitude.rightParenthesis;
+		$s = leftParenthesis.$this->latitude().comma.$this->longitude().rightParenthesis;
 
 		//	If there's a canonical address, append it after a colon:
-		if ( isNonEmptyString( $this->address ) ) $s .= colon.$this->address;
+		$address = $this->address();
+		if ( isNonEmptyString( $address ) ) $s .= colon.$address;
 
 		//	Return the result:
 		return $s;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	public function latitude()
+	{
+		return $this->latitude;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	public function longitude()
+	{
+		return $this->longitude;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	public function address()
+	{
+		return $this->address;
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -479,8 +501,8 @@ function geocodeUsingOpenStreetMap( $address )
 	//	Extract the latitude, longitude and canonical address; note that the
 	//	SimpleXML subsystem stores everything as objects, so we have to force
 	//	a conversion:
-	$latitude = (double)$place['lat'];
-	$longitude = (double)$place['lon'];
+	$latitude = (string)$place['lat'];
+	$longitude = (string)$place['lon'];
 	$address = (string)$place['display_name'];
 
 	//	Create a new "geocode location" object from this information:
@@ -557,8 +579,8 @@ function googleMapsHelper( $url )
 	//	Extract the latitude, longitude and canonical address; note that the
 	//	SimpleXML subsystem stores everything as objects, so we have to force
 	//	a conversion:
-	$latitude = (double)$location->lat[0];
-	$longitude = (double)$location->lng[0];
+	$latitude = (string)$location->lat[0];
+	$longitude = (string)$location->lng[0];
 	$address = (string)$result->formatted_address[0];
 
 	//	Create a new "geocode location" object from this information:
@@ -606,6 +628,13 @@ function reverseGeocode( $latitude, $longitude )
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+function debugValue( $value )
+{
+	return preTag.print_r( htmlspecialchars( $value ) ).preTagEnd;	
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 function formattedBacktrace( $backtrace )
