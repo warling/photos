@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 require( 'include.uploader.'.language.'.php' );
+require( 'include.maps.php' );
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -611,7 +612,19 @@ class Uploader
 							$image->setImageLatitude( $latitude );
 							$image->setImageLongitude( $longitude );
 
-							//	Now try to get the elevation using this:
+							//	Extract the altitude, which may or may not be
+							//	provided; if it's not provided the call will
+							//	return an empty string:
+							$altitude = $location->altitude();
+							assert( 'isEmptyString( $altitude ) || isNumericString( $altitude )' );
+
+							//	If the altitude is available, store it too;
+							//	note that this may override an existing
+							//	altitude value, but we're going to assume
+							//	that if the geocoding service provides
+							//	latitude and longitude, it probably
+							//	provides accurate altitude as well:
+							if ( isNumericString( $altitude ) ) $image->setImageAltitude( $altitude );
 						}
 					}
 				}
@@ -646,7 +659,19 @@ class Uploader
 							//	Store the address:
 							$image->setImageAddress( $address );
 
-							//	Now try to get the elevation using this:
+							//	Extract the altitude, which may or may not be
+							//	provided; if it's not provided the call will
+							//	return an empty string:
+							$altitude = $location->altitude();
+							assert( 'isEmptyString( $altitude ) || isNumericString( $altitude )' );
+
+							//	If the altitude is available, store it too;
+							//	note that this may override an existing
+							//	altitude value, but we're going to assume
+							//	that if the geocoding service provides
+							//	latitude and longitude, it probably
+							//	provides accurate altitude as well:
+							if ( isNumericString( $altitude ) ) $image->setImageAltitude( $altitude );
 						}
 
 					}
