@@ -13,6 +13,25 @@ define( 'undefinedTimestamp', '0000-00-00 00:00:00' );
 
 ////////////////////////////////////////////////////////////////////////////////
 
+function isUndefined( $variable )
+{
+	return
+		( $variable === null ) ||
+		( $variable === undefinedInt ) ||
+		( $variable === undefinedDouble ) ||
+		( $variable === undefinedString ) ||
+		( $variable === undefinedTimestamp );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+function isNotUndefined( $variable )
+{
+	return !isUndefined( $variable );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 function isNull( $variable )
 {
 	return ( $variable === null );
