@@ -1827,7 +1827,7 @@ function displayAdminTestPage( &$pageContent, $user, $databaseConnection )
 	$pageContent .=
 		'<div id="adminTestPage">'.doubleNewline;
 
-	$address = '44 Clarence Avenue Southeast, Minneapolis, MN 55414';
+	$address = 'Minneapolis, MN, USA';
 
 	$pageContent .= pTag.geocodeUsingOpenStreetMap( urlencode( $address ) ).pTagEnd.doubleNewline;
 	$pageContent .= pTag.reverseGeocodeUsingOpenStreetMap( 44.96766, -93.21132 ).pTagEnd.doubleNewline;
