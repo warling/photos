@@ -209,7 +209,7 @@ var AlbumEditImagesPage = new function()
 						$imageAddressControl.val( image.imageAddress );
 						$imageLatitudeControl.val( image.imageLatitude );
 						$imageLongitudeControl.val( image.imageLongitude );
-						$imageAltitudeControl.val( image.imageAltitude );
+						$imageAltitudeControl.val( image.imageAltitude * 3.28083989501312 ); //	Values are stored in SI; I haven't yet set up any unit system conversion, so at the moment I'm hard-coding it to feet
 						$imageHeadingControl.val( image.imageHeading );
 
 						//	Check or uncheck:
@@ -1232,7 +1232,7 @@ var AlbumEditImagesPage = new function()
 
 					$mostRecentTarget.data( 'image').imageAltitude = altitude;
 
-					$imageAltitudeControl.val( altitude );
+					$imageAltitudeControl.val( altitude * 3.28083989501312 );
 				}
 			}
 		}
@@ -1414,7 +1414,7 @@ var AlbumEditImagesPage = new function()
 			{
 				if ( status != google.maps.ElevationStatus.OK ) return;
 
-				$imageAltitudeControl.val( results[0].elevation );
+				$imageAltitudeControl.val( results[0].elevation * 3.28083989501312 );
 			}
 		}
 	}
@@ -1473,7 +1473,7 @@ var AlbumEditImagesPage = new function()
 				{
 					if ( $mostRecentTarget != undefined )
 					{
-						$mostRecentTarget.data( 'image' ).imageAltitude = jQuery.trim( $imageAltitudeControl.val() );
+						$mostRecentTarget.data( 'image' ).imageAltitude = jQuery.trim( $imageAltitudeControl.val() / 3.28083989501312 );
 					}
 				}
 			}
