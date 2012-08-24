@@ -1664,6 +1664,14 @@ function processActionAlbumUpdate( &$action, $user, &$album, &$pageContent, $dat
 				$album->setAlbumDescription( $albumDescription );
 				$album->setAlbumTags( $albumTags );
 				$album->setAlbumDoPublish( $albumDoPublish );
+
+				//	Store the changes; we could perhaps wait until the
+				//	Object::storeAll() function executes at the very end of
+				//	the script, but this would require us removing an
+				//	important safety check assertion elsewhere. This should
+				//	have little practical effect on performance but increases
+				//	safety a great deal, so it seems a reasonable tradeoff:
+				Object::storeAll( $databaseConnection );
 			}
 		}
 	}
@@ -2123,6 +2131,10 @@ function displayAlbumEditPage( &$pageContent, $user, $album, &$buttonBarUser, $d
 		'<input type="hidden" value="'.$album->albumId().'" name="'.keyAlbumId.quoteSlashBracket.doubleNewline.
 		'<input type="hidden" name="'.keyAction.'" value="'.actionAlbumUpdate.quoteSlashBracket.newline.
 		'<button tabindex="7" class="button" type="submit" value="'.buttonUpdate.'" accesskey="'.accesskeyUpdate.quoteBracket.buttonUpdate.buttonTagEnd.newline.
+		divTagEnd.doubleNewline.
+		formTagEnd.newline.
+
+		'<form class="button" method="post" action="'.scriptName.questionMark.keyUserId.equals.$userId.amp.keyAlbumNumber.equals.$albumNumber.quoteBracket.newline.
 		button( actionDisplayAlbumPage, buttonCancel, emptyString, scriptName.questionMark.keyUserId.equals.$userId.amp.keyAlbumNumber.equals.$albumNumber, 8, emptyString, array() ).
 		divTagEnd.doubleNewline.
 
