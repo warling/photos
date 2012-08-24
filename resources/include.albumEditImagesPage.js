@@ -49,7 +49,32 @@ $.fn.toPx = function(settings){
 
 function isNumeric( n )
 {
-  return !isNaN( parseFloat( n ) ) && isFinite( n );
+	return !isNaN( parseFloat( n ) ) && isFinite( n );
+}
+
+function isNotNumeric( n )
+{
+	return !isNumeric( n );
+}
+
+function isEmpty( str )
+{
+	return (!str || 0 === str.length);
+}
+
+function isNotEmpty( str )
+{
+	return !isEmpty( str );
+}
+
+function isBlank( str )
+{
+	return ( !str || /^\s*$/.test( str ) );
+}
+
+function isNotBlank( str )
+{
+	return !isBlank( str );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,8 +234,15 @@ var AlbumEditImagesPage = new function()
 						$imageAddressControl.val( image.imageAddress );
 						$imageLatitudeControl.val( image.imageLatitude );
 						$imageLongitudeControl.val( image.imageLongitude );
-						$imageAltitudeControl.val( image.imageAltitude * 3.28083989501312 ); //	Values are stored in SI; I haven't yet set up any unit system conversion, so at the moment I'm hard-coding it to feet
 						$imageHeadingControl.val( image.imageHeading );
+
+						//	Set the altitude, which is stored in the SI units
+						//	of meters; since I haven't yet set up any unit
+						//	conversion system I'm hard-coding the output value
+						//	to feet:
+						var imageAltitude = image.imageAltitude;
+						if ( isNumeric( imageAltitude ) ) imageAltitude *= 3.28083989501312;
+						$imageAltitudeControl.val( imageAltitude );
 
 						//	Check or uncheck:
 						$albumThumbnailControl.attr( 'checked', image.imageId == Album.albumThumbnailImageId );
@@ -1165,7 +1197,10 @@ var AlbumEditImagesPage = new function()
 
 					$mostRecentTarget.data( 'image' ).imageAddress = address;
 
-					geocoder.geocode( { 'address' : address }, ImageAddressControl.onLatLongReturn );
+					if ( isNotBlank( address ) )
+					{
+						geocoder.geocode( { 'address' : address }, ImageAddressControl.onLatLongReturn );
+					}
 				}
 			}
 		}
@@ -1473,7 +1508,11 @@ var AlbumEditImagesPage = new function()
 				{
 					if ( $mostRecentTarget != undefined )
 					{
-						$mostRecentTarget.data( 'image' ).imageAltitude = jQuery.trim( $imageAltitudeControl.val() / 3.28083989501312 );
+						var imageAltitude = jQuery.trim( $imageAltitudeControl.val() );
+
+						if ( isNumeric( imageAltitude ) ) imageAltitude /= 3.28083989501312;
+
+						$mostRecentTarget.data( 'image' ).imageAltitude = imageAltitude;
 					}
 				}
 			}
@@ -1493,7 +1532,7 @@ var AlbumEditImagesPage = new function()
 				{
 					if ( $mostRecentTarget != undefined )
 					{
-						$mostRecentTarget.data( 'image' ).imageAltitude = jQuery.trim( $imageHeadingControl.val() );
+						$mostRecentTarget.data( 'image' ).imageHeading = jQuery.trim( $imageHeadingControl.val() );
 					}
 				}
 			}
