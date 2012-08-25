@@ -1954,7 +1954,7 @@ function displayUserUpdatePage( &$pageContent, $user, $databaseConnection )
 
 		'<input type="hidden" value="'.$user->userId().'" name="'.keyUserId.quoteSlashBracket.newline.
 		'<input type="hidden" name="'.keyAction.'" value="'.actionUserUpdate.quoteSlashBracket.newline.
-		'<button id="update" type="submit" name="'.actionUserUpdate.'" value="'.buttonUpdate.'" accesskey="'.accesskeyUpdate.'" tabindex="3" class="button">'.buttonUpdate.buttonTagEnd.newline.
+		'<button id="update" type="submit" name="'.actionUserUpdate.'" value="'.buttonSave.'" accesskey="'.accesskeySave.'" tabindex="3" class="button">'.buttonSave.buttonTagEnd.newline.
 		button( actionDefault, buttonCancel, emptyString, scriptName, 4, emptyString, array() ).
 		divTagEnd.doubleNewline.
 		divTagEnd.newline.
@@ -2130,7 +2130,7 @@ function displayAlbumEditPage( &$pageContent, $user, $album, &$buttonBarUser, $d
 		'<div id="buttons">'.newline.
 		'<input type="hidden" value="'.$album->albumId().'" name="'.keyAlbumId.quoteSlashBracket.doubleNewline.
 		'<input type="hidden" name="'.keyAction.'" value="'.actionAlbumUpdate.quoteSlashBracket.newline.
-		'<button tabindex="7" class="button" type="submit" value="'.buttonUpdate.'" accesskey="'.accesskeyUpdate.quoteBracket.buttonUpdate.buttonTagEnd.newline.
+		'<button tabindex="7" class="button" type="submit" value="'.buttonSave.'" accesskey="'.accesskeySave.quoteBracket.buttonSave.buttonTagEnd.newline.
 		divTagEnd.doubleNewline.
 		formTagEnd.newline.
 
