@@ -2115,7 +2115,7 @@ function displayAlbumEditPage( &$pageContent, $user, $album, &$buttonBarUser, $d
 		$albumDescription.
 		textareaTagEnd.doubleNewline.
 
-		'<label for="'.fieldAlbumTags.quoteBracket.labelAlbumTags.labelTagEnd.newline.
+		'<label id="'.fieldAlbumTags.'Label" for="'.fieldAlbumTags.quoteBracket.labelAlbumTags.'<span id="'.fieldAlbumTags.'Hint'.quoteBracket.hintAlbumTags.spanTagEnd.labelTagEnd.newline.
 		'<textarea tabindex="5" id="'.fieldAlbumTags.'" name="'.fieldAlbumTags.'" accesskey="'.accesskeyAlbumTags.quoteBracket.
 		$albumTags.
 		textareaTagEnd.doubleNewline.
@@ -2401,7 +2401,7 @@ function displayImagePage( &$pageContent, &$pageStyle, &$pageHead, &$buttonBarUs
 		tab.tab.tab.divTagEnd.newline.
 		tab.tab.tab.'<div id="imageRemainderGroup">'.newline.
 		tab.tab.tab.tab.'<div id="imageTagsField">'.newline.
-		tab.tab.tab.tab.tab.'<label id="imageTagsLabel" for="imageTagsControl">'.labelImageTags.labelTagEnd.newline.
+		tab.tab.tab.tab.tab.'<label id="imageTagsLabel" for="imageTagsControl">'.labelImageTags.'<span id="'.fieldImageTags.'Hint'.quoteBracket.hintImageTags.spanTagEnd.labelTagEnd.newline.
 		tab.tab.tab.tab.tab.'<textarea id="imageTagsControl" accesskey="'.accesskeyImageTags.quoteBracket.textareaTagEnd.newline.
 		tab.tab.tab.tab.divTagEnd.newline.
 		tab.tab.tab.tab.'<div id="imageRatingsGroup">'.newline.

@@ -79,14 +79,14 @@ form.button div { display:inline; }
 
 #albumEditPage { margin-top:1em; }
 #albumEditPage div#buttons { margin-top:1em; }
-#albumEditPage div.fields label { margin-top:1em; display:block; margin-bottom:0.25em; }
-#albumEditPage div.fields input { width:99%; }
+#albumEditPage div.fields label { font-weight:bold; margin-top:1em; display:block; margin-bottom:0.25em; }
+#albumEditPage div.fields input { width:99%; font-family:sans-serif; }
 #albumEditPage div.fields textarea { width:99%; }
 #albumEditPage div.checkboxes input { margin-top:1em; margin-bottom:0.25em; }
 #albumEditPage #albumDescription { height:20em; }
 #albumEditPage #albumTags { height:3.75em; }
 #albumEditPage #albumPublish { margin-left:0.5em; vertical-align:bottom; }
-#albumEditPage div.fields input { font-family:sans-serif; }
+#albumEditPage #albumTagsHint { font-weight:normal; margin-left:0.5em; font-size:smaller; }
 
 #albumEditImagesPage { margin-top:1em; }
 #albumEditImagesPage #imageDataGroupWrapper { width:100%; float:left; }
@@ -109,6 +109,7 @@ form.button div { display:inline; }
 /**/
 #albumEditImagesPage #imageDataGroup #imageDescriptionControl { height:30em; }
 #albumEditImagesPage #imageDataGroup #imageTagsControl { height:3em; }
+#albumEditImagesPage #imageDataGroup #imageTagsHint { font-weight:normal; margin-left:0.5em; font-size:smaller; }
 /**/
 #albumEditImagesPage #imageDataGroup #imageRatingsGroup { margin-top:0.5em; margin-bottom:0.5em; }
 #albumEditImagesPage #imageDataGroup #imageRatingsGroup #imageRatingField { display:inline;}

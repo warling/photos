@@ -21,6 +21,8 @@ define( 'labelImageTags', 'Ta<span class="accesskey">g</span>s' );
 define( 'labelImageTimestampCreation', 'Date &amp; Tim<span class="accesskey">e</span>' );
 define( 'labelImageTitle', '<span class="accesskey">T</span>itle' );
 
+define( 'hintImageTags', hintAlbumTags );
+
 define( 'accesskeyImageAddress', 'a' );
 define( 'accesskeyImageAlbumThumbnail', 'u' );
 define( 'accesskeyImageAltitude', emptyString );
