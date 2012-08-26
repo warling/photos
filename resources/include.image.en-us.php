@@ -6,6 +6,7 @@ define( 'buttonImageMoveDown', '&#8595;' );
 define( 'buttonImageMoveUp', '&#8593;' );
 define( 'buttonImageRotateLeft', '&#8592;' );
 define( 'buttonImageRotateRight', '&#8594;' );
+define( 'buttonImageUpdate', 'Save' );
 
 define( 'labelImageAddress', '<span class="accesskey">A</span>ddress' );
 define( 'labelImageAlbumThumbnail', '<span class="accesskey">U</span>se as album thumbnail' );
@@ -53,5 +54,6 @@ define( 'tooltipImageRating4', 'Click to rate the image \'Really Like It\'' );
 define( 'tooltipImageRating5', 'Click to rate the image \'Love It\'' );
 define( 'tooltipImageRotateLeft', 'Rotate 90° counter-clockwise (Ctrl+Left Arrow)' );
 define( 'tooltipImageRotateRight', 'Rotate 90° clockwise (Ctrl+Right Arrow)' );
+define( 'tooltipImageUpdate', 'Save changes to ALL images' );	
 
 ?>
