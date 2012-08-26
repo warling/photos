@@ -144,10 +144,11 @@ define( 'actionDisplayAlbumPage', 'displayAlbumPage' );
 define( 'actionDisplayAlbumSummariesPage', 'displayAlbumSummariesPage' );
 define( 'actionDisplayAlbumUploadPage', 'displayAlbumUploadPage' );
 define( 'actionDisplayAlbumCaptionPage', 'displayAlbumCaptionPage' );
-define( 'actionDisplayImagePage', 'displayImagePage' );
+define( 'actionDisplayImageEditPage', 'displayImageEditPage' );
 define( 'actionDisplayVersion', 'v' );
 define( 'actionDisplayVersionPage', 'displayVersionPage' );
 define( 'actionGetAlbumXml', 'gax' );
+define( 'actionSetAlbumXml', 'sax' );
 define( 'actionGetTimestampXml', 'gtx' );
 define( 'actionDefault', actionDisplayAlbumSummariesPage );
 
@@ -409,7 +410,7 @@ else if ( parameterExists( keyUserId ) )
 		$action = actionDisplayAlbumPage;
 		if ( parameterExists( keyImageNumber ) )
 		{
-			$action = actionDisplayImagePage;
+			$action = actionDisplayImageEditPage;
 			if ( parameterExists( keyVersionNumber ) )
 			{
 				$action = actionDisplayVersionPage;
@@ -461,10 +462,11 @@ switch ( $action )
 	case actionDisplayAlbumEditPage:	displayAlbumEditPage( $pageContent, $user, $album, $buttonBarUser, $databaseConnection ); break;
 	case actionDisplayAlbumPage:		displayAlbumPage( $pageContent, $pageStyle, $buttonBarUser, $user, $album, $databaseConnection ); break;
 	case actionDisplayAlbumUploadPage:	displayAlbumUploadPage( $pageContent, $buttonBarUser, $user, $album, $databaseConnection ); break;
-	case actionDisplayImagePage:		displayImagePage( $pageContent, $pageStyle, $pageHead, $buttonBarUser, $user, $album, $image, $databaseConnection ); break;
+	case actionDisplayImageEditPage:	displayImageEditPage( $pageContent, $pageStyle, $pageHead, $buttonBarUser, $user, $album, $image, $databaseConnection ); break;
 	case actionDisplayVersion:			displayVersion( $pageContent, $user, $databaseConnection ); return;
 	case actionDisplayVersionPage:		displayVersionPage( $pageContent, $buttonBarUser, $user, $album, $image, $version, $databaseConnection ); break;
 	case actionGetAlbumXml:				getAlbumXml( $user, $databaseConnection ); break;
+	case actionSetAlbumXml:				setAlbumXml( $user, $databaseConnection ); break;
 	case actionGetTimestampXml:			getTimestampXml( $databaseConnection ); break;
 }
 
@@ -2336,7 +2338,7 @@ function displayAlbumPage( &$pageContent, &$pageStyle, &$buttonBarUser, $user, $
 
 ////////////////////////////////////////////////////////////////////////////////
 
-function displayImagePage( &$pageContent, &$pageStyle, &$pageHead, &$buttonBarUser, $user, $album, $image, $databaseConnection )
+function displayImageEditPage( &$pageContent, &$pageStyle, &$pageHead, &$buttonBarUser, $user, $album, $image, $databaseConnection )
 {
 	assert( 'isString( $pageContent )' );
 	assert( 'isString( $pageStyle )' );
@@ -2505,6 +2507,13 @@ function displayImagePage( &$pageContent, &$pageStyle, &$pageHead, &$buttonBarUs
 		tab.divTagEnd.doubleNewline.*/
 
 		divTagEnd;
+
+	$parameters = array( keyAlbumId => $album->albumId() );
+	$buttonBarUser .=
+		button( actionDisplayAlbumEditPage,   buttonAlbumEdit,   tooltipAlbumEdit,   scriptName, emptyString, accesskeyAlbumEdit, $parameters ).
+		button( actionDisplayAlbumDeletePage, buttonAlbumDelete, tooltipAlbumDelete, scriptName, emptyString, emptyString, $parameters ).
+		button( actionDisplayAlbumUploadPage, buttonAlbumUpload, tooltipAlbumUpload, scriptName, emptyString, emptyString, $parameters ).
+		button( actionDisplayImageEditPage,   buttonImageUpdate, tooltipImageUpdate, scriptName, emptyString, emptyString, parameters() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2821,6 +2830,28 @@ function getAlbumXml( $user, $databaseConnection )
 		'</album>';
 
 	echo $xml; exit;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+function setAlbumXml( $user, $databaseConnection )
+{
+	print_r( $_POST ); exit;
+	writeStringFile( 'debug.txt', 'Hello, World' ); exit;
+
+	$albumId = parameter( keyAlbumId, $databaseConnection );
+
+	if ( !isNonEmptyIntString( $albumId ) ) exit;
+
+	$album = Album::albumByAlbumId( $albumId, $databaseConnection );
+	assert( isValidAlbum( $album ) );
+
+	if ( isNotValidAlbum( $album ) ) exit;
+
+	if ( $user->userId() !== $album->userId() )
+	{
+		exit;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,6 @@ $.fn.toEm = function(settings){
 	return (that / scopeVal).toFixed(8) + 'em';
 };
 
-
 $.fn.toPx = function(settings){
 	settings = jQuery.extend({
 		scope: 'body'
@@ -45,7 +44,6 @@ $.fn.toPx = function(settings){
 	scopeTest.remove();
 	return Math.round(that * scopeVal) + 'px';
 };
-
 
 function isNumeric( n )
 {
@@ -119,6 +117,7 @@ var AlbumEditImagesPage = new function()
 	this.$imageMagnifiedContainer = undefined;
 	this.$imageMagnifiedImage = undefined;
 	this.$busyCursor = undefined;
+	this.$displayImageEditPageButton = undefined;
 
 	this.server = undefined;
 
@@ -1845,6 +1844,31 @@ var AlbumEditImagesPage = new function()
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
 
+	this.DisplayImageEditPageButton = new function()
+	{
+		this.onClick = function( e )
+		{
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			e.stopPropagation();
+
+			with ( AlbumEditImagesPage )
+			{
+				with ( ImageThumbnailsList )
+				{
+					if ( $mostRecentTarget != undefined )
+					{
+						$.post( ( server + '?d=sax' ), { xml:Album.toXml() }, function( data ){ alert( data ); } );
+					}
+				}
+			}
+
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+
 	this.BusyCursor = new function()
 	{
 		this.show = function()
@@ -1929,6 +1953,14 @@ var AlbumEditImagesPage = new function()
 
 		this.toXml = function()
 		{
+			with ( AlbumEditImagesPage )
+			{
+				return '' +
+					'<album>' +
+						'<albumId>' + Album.albumId + '</albumId>' +
+						'<albumThumbnailImageId>' + Album.albumThumbnailImageId + '</albumThumbnailImageId>' +
+					'</album>';
+			}
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -2096,6 +2128,7 @@ var AlbumEditImagesPage = new function()
 			$imageExifCompleteGroup = $( '#imageExifCompleteGroup' );
 			$imageExifCompleteControl = $( '#imageExifCompleteControl' );
 			$imageMapControl = $( '#imageMapControl' );
+			$displayImageEditPageButton = $( '#displayImageEditPage' );
 
 			//	Ensure that all of our fields are cleared of data:
 			clearImageFields();
@@ -2140,6 +2173,9 @@ var AlbumEditImagesPage = new function()
 			$imageLongitudeControl.change( ImageLongitudeControl.onChange );
 			$imageAltitudeControl.change( ImageAltitudeControl.onChange );
 			$imageHeadingControl.change( ImageHeadingControl.onChange );
+
+			//	Set up the "save button" hander:
+			$displayImageEditPageButton.click( DisplayImageEditPageButton.onClick );
 
 			$( '#imageExifSummaryLabel' ).toggle( ImageExifControl.hide, ImageExifControl.show );
 			$( '#imageExifCompleteLabel' ).toggle( ImageExifControl.show, ImageExifControl.hide );
