@@ -108,7 +108,7 @@ function geocodeUsingOpenStreetMap( $address )
 	if ( $xml === false ) return $xml;
 
 	//	Extract the 'place' record:
-	$place = $xml->place[0];
+	$place = $xml->place;
 
 	//	Extract the latitude, longitude and canonical address; note that the
 	//	SimpleXML subsystem stores everything as objects, so we have to force
@@ -201,14 +201,14 @@ function googleMapsHelper( $url )
 	if ( $result === false ) return false;
 
 	//	Extract the 'location' record:
-	$location = $result->geometry[0]->location[0];
+	$location = $result->geometry->location;
 
 	//	Extract the latitude, longitude and canonical address; note that the
 	//	SimpleXML subsystem stores everything as objects, so we have to force
 	//	a conversion:
-	$latitude = (string)$location->lat[0];
-	$longitude = (string)$location->lng[0];
-	$address = (string)$result->formatted_address[0];
+	$latitude = (string)$location->lat;
+	$longitude = (string)$location->lng;
+	$address = (string)$result->formatted_address;
 
 	//	If we have a non-empty latitude and longitude, try to fetch the
 	//	altitude at this location:
@@ -219,7 +219,7 @@ function googleMapsHelper( $url )
 		$result = googleMapsHelperInner( 'elevation/xml?sensor=false&locations='.$latitude.comma.$longitude );
 
 		//	If the request didn't fail, extract the altitude:
-		if ( $result !== false ) $altitude = (string)$result->elevation[0];
+		if ( $result !== false ) $altitude = (string)$result->elevation;
 	}
 
 	//	Create a new "geocode location" object from this information:
