@@ -81,6 +81,13 @@ function isEmptyString( $string )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+function isNotEmptyString( $string )
+{
+	return !isEmptyString( $string );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 function isNonEmptyString( $string )
 {
 	//	Note that we can't simply use the isEmpty() function because
@@ -243,6 +250,13 @@ function isNumericString( $value )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+function isNotNumericString( $value )
+{
+	return !isNumericString( $value );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 function isIntString( $value )
 {
 	return isString( $value ) && is_numeric( $value ) && ( $value == (int)$value );
@@ -260,6 +274,13 @@ function isNonEmptyIntString( $value )
 function isPositiveIntString( $value )
 {
 	return isIntString( $value ) && ( (int)$value > 0 );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+function isNotPositiveIntString( $value )
+{
+	return !isPositiveIntString( $value );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
