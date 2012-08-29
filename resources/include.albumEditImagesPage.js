@@ -75,6 +75,16 @@ function isNotBlank( str )
 	return !isBlank( str );
 }
 
+function htmlspecialchars( s )
+{
+	return s.
+		replace( /&(?!amp;)/g, '&amp;' ).
+		replace( /<(?!lt;)/g, '&lt;' ).
+		replace( />(?!gt;)/g, '&gt;' ).
+		replace( /"(?!quot;)/g, '&quot;' ).
+		replace( /'(?!#039;)/g, '&#039;' );
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 var AlbumEditImagesPage = new function()
@@ -1858,11 +1868,28 @@ var AlbumEditImagesPage = new function()
 				{
 					if ( $mostRecentTarget != undefined )
 					{
-						$.post( ( server + '?d=sax' ), { xml:Album.toXml() }, function( data ){ alert( data ); } );
+						$.post( ( server + '?d=sax&ai=' + Album.albumId ), { xml:Album.toXml() }, DisplayImageEditPageButton.onSuccess );
 					}
 				}
 			}
+		}
 
+		////////////////////////////////////////////////////////////////////////
+
+		this.onSuccess = function( data, textStatus, jqXHR )
+		{
+			if ( data === '' )
+			{
+				alert( 'Save failed. Unknown server-side error.' );
+			}
+			else if ( data !== 'success' )
+			{
+				alert( 'Save error: ' + data );
+			}
+			else if ( textStatus !== 'success' )
+			{
+				alert( 'Save failed. Unknown error: ' + textStatus );
+			}
 		}
 	}
 
@@ -1915,9 +1942,6 @@ var AlbumEditImagesPage = new function()
 			with ( AlbumEditImagesPage )
 			{
 				var imageId = jQuery.trim( $image.find( 'imageId' ).text() );
-				var albumId = jQuery.trim( $image.find( 'albumId' ).text() );
-				var imageNumber = jQuery.trim( $image.find( 'imageNumber' ).text() );
-
 				var imageTitle = jQuery.trim( $image.find( 'imageTitle' ).text() );
 				var imageDescription = jQuery.trim( $image.find( 'imageDescription' ).text() );
 				var imageTags = jQuery.trim( $image.find( 'imageTags' ).text() );
@@ -1939,7 +1963,7 @@ var AlbumEditImagesPage = new function()
 				var imageThumbnailVersionWidth = jQuery.trim( $image.find( 'imageThumbnailVersionWidth' ).text() );
 				var imageThumbnailVersionHeight = jQuery.trim( $image.find( 'imageThumbnailVersionHeight' ).text() );
 
-				var image = new Album.Image( imageId, albumId, imageNumber, imageTitle, imageDescription, imageTags, imageRating, imagePhotographer, imageTimestampCreation, imageAddress, imageLatitude, imageLongitude, imageAltitude, imageHeading, imageExifSummary, imageExifComplete, imageVersionIdMagnified, imageThumbnailVersionId, imageThumbnailVersionWidth, imageThumbnailVersionHeight );
+				var image = new Album.Image( imageId, imageTitle, imageDescription, imageTags, imageRating, imagePhotographer, imageTimestampCreation, imageAddress, imageLatitude, imageLongitude, imageAltitude, imageHeading, imageExifSummary, imageExifComplete, imageVersionIdMagnified, imageThumbnailVersionId, imageThumbnailVersionWidth, imageThumbnailVersionHeight );
 
 				$image = $( '<img src="' + server + '?d=v&vi=' + imageThumbnailVersionId + '" width="' + imageThumbnailVersionWidth + '" height="' + imageThumbnailVersionHeight + '" tabindex="0" title="' + imageTitle + '" />' );
 
@@ -1955,11 +1979,24 @@ var AlbumEditImagesPage = new function()
 		{
 			with ( AlbumEditImagesPage )
 			{
-				return '' +
+				var result =
+					'<?xml version="1.0" encoding="utf-8"?>' +
 					'<album>' +
-						'<albumId>' + Album.albumId + '</albumId>' +
-						'<albumThumbnailImageId>' + Album.albumThumbnailImageId + '</albumThumbnailImageId>' +
+						'<albumThumbnailImageId>' + Album.albumThumbnailImageId + '</albumThumbnailImageId>';
+
+				//	Get the set of all images:
+				var $images = $imageThumbnailsList.find( 'img' );
+
+				//	Copy the location information into each of them:
+				$images.each( function( i )
+				{
+					result += $( this ).data( 'image' ).toXml();
+				} );
+
+				result +=
 					'</album>';
+
+				return result;
 			}
 		}
 
@@ -1975,12 +2012,9 @@ var AlbumEditImagesPage = new function()
 
 		////////////////////////////////////////////////////////////////////////
 
-		this.Image = function( imageId, albumId, imageNumber, imageTitle, imageDescription, imageTags, imageRating, imagePhotographer, imageTimestampCreation, imageAddress, imageLatitude, imageLongitude, imageAltitude, imageHeading, imageExifSummary, imageExifComplete, imageVersionIdMagnified, imageThumbnailVersionId, imageThumbnailVersionWidth, imageThumbnailVersionHeight )
+		this.Image = function( imageId, imageTitle, imageDescription, imageTags, imageRating, imagePhotographer, imageTimestampCreation, imageAddress, imageLatitude, imageLongitude, imageAltitude, imageHeading, imageExifSummary, imageExifComplete, imageVersionIdMagnified, imageThumbnailVersionId, imageThumbnailVersionWidth, imageThumbnailVersionHeight )
 		{
 			this.imageId = imageId;
-			this.albumId = albumId;
-			this.imageNumber = imageNumber;
-
 			this.imageTitle = imageTitle;
 			this.imageDescription = imageDescription;
 			this.imageTags = imageTags;
@@ -2004,6 +2038,28 @@ var AlbumEditImagesPage = new function()
 			this.imageThumbnailVersionHeight = imageThumbnailVersionHeight;
 
 			this.imageRotation = 0;
+
+			////////////////////////////////////////////////////////////////////
+
+			this.toXml = function()
+			{
+				var result =
+					'<image>' +
+						'<imageId>' + this.imageId + '</imageId>' +
+						'<imageTitle>' + htmlspecialchars( this.imageTitle ) + '</imageTitle>' +
+						'<imageDescription>' + htmlspecialchars( this.imageDescription ) + '</imageDescription>' +
+						'<imageTags>' + htmlspecialchars( this.imageTags ) + '</imageTags>' +
+						'<imagePhotographer>' + htmlspecialchars( this.imagePhotographer ) + '</imagePhotographer>' +
+						'<imageTimestamp>' + htmlspecialchars( this.imageTimestampCreation ) + '</imageTimestamp>' +
+						'<imageAddress>' + htmlspecialchars( this.imageAddress ) + '</imageAddress>' +
+						'<imageLatitude>' + htmlspecialchars( this.imageLatitude ) + '</imageLatitude>' +
+						'<imageLongitude>' + htmlspecialchars( this.imageLongitude ) + '</imageLongitude>' +
+						'<imageAltitude>' + htmlspecialchars( this.imageAltitude ) + '</imageAltitude>' +
+						'<imageHeading>' + htmlspecialchars( this.imageHeading ) + '</imageHeading>' +
+						//	EXIF data is read-only and therefore not sent back to the server.
+					'</image>';
+				return result;
+			}
 		}
 	}
 

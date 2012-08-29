@@ -2596,13 +2596,6 @@ function getAlbumXml( $user, $databaseConnection )
 	foreach ( $albumThumbnails as $albumThumbnail )
 	{
 		$image = $albumImages[$albumThumbnail->imageId()];
-		$imageId = $image->imageId();
-		$imageTitle = $image->imageTitle();
-		$imageDescription = $image->imageDescription();
-
-		$imageVersionThumbnailId = $albumThumbnail->versionId();
-		$imageVersionThumbnailWidth = $albumThumbnail->versionWidth();
-		$imageVersionThumbnailHeight = $albumThumbnail->versionHeight();
 
 		$imageElement = new SimpleXMLElement( '<image>'.newline.htmlspecialchars_decode( $image->toXmlString() ).'</image>'.newline );
 		$imageExifElement = ( isset( $imageElement->imageExif ) ? $imageElement->imageExif : $imageElement->addChild( 'imageExif' ) );
@@ -2820,6 +2813,10 @@ function getAlbumXml( $user, $databaseConnection )
 			$element->addChild( exifValue );
 		}
 
+		$imageVersionThumbnailId = $albumThumbnail->versionId();
+		$imageVersionThumbnailWidth = $albumThumbnail->versionWidth();
+		$imageVersionThumbnailHeight = $albumThumbnail->versionHeight();
+
 		$imageElement->addChild( 'imageThumbnailVersionId', $imageVersionThumbnailId );
 		$imageElement->addChild( 'imageThumbnailVersionWidth', $imageVersionThumbnailWidth );
 		$imageElement->addChild( 'imageThumbnailVersionHeight', $imageVersionThumbnailHeight );
@@ -2836,22 +2833,105 @@ function getAlbumXml( $user, $databaseConnection )
 
 function setAlbumXml( $user, $databaseConnection )
 {
-	print_r( $_POST ); exit;
-	writeStringFile( 'debug.txt', 'Hello, World' ); exit;
-
+	//	Extract the album id parameter:
 	$albumId = parameter( keyAlbumId, $databaseConnection );
+//	print_r( $_POST ); exit;
 
+	//	If we don't have a valid album id, bug out:
 	if ( !isNonEmptyIntString( $albumId ) ) exit;
 
+	//	Fetch the album associated with this id:
 	$album = Album::albumByAlbumId( $albumId, $databaseConnection );
 	assert( isValidAlbum( $album ) );
 
+	//	If no such album exists, bug out:
 	if ( isNotValidAlbum( $album ) ) exit;
 
+	//	If the current user isn't the owner of the album, bug out:
 	if ( $user->userId() !== $album->userId() )
 	{
 		exit;
 	}
+
+	//	Extract the XML string:
+	$albumXml = $_POST['xml'];
+	if ( isEmptyString( $albumXml ) ) exit;
+
+	//	Convert the data string into an XML object:
+	$albumXml = simplexml_load_string( $albumXml, 'SimpleXMLElement', LIBXML_NOERROR | LIBXML_NOWARNING | LIBXML_COMPACT );
+	if ( $albumXml === false )
+	{
+		echo saxErrorCorrupt.'1'; exit;
+	}
+
+	//	Extract the id of the image to be used as the album's thumbnail;
+	//	if one has been selected:
+	$albumThumbnailImageId = sanitizedString( (string)$albumXml->albumThumbnailImageId, $databaseConnection );
+	if ( $albumThumbnailImageId !== 'undefined' )
+	{
+		if ( isNotPositiveIntString( $albumThumbnailImageId ) )
+		{
+			echo saxErrorCorrupt.'2'; exit;
+		}
+	}
+	else
+	{
+		$albumThumbnailImageId = emptyString;
+	}
+
+	//	Process each of the images and store them in an array:
+	$imageNumber = 1;
+	foreach ( $albumXml->image as $imageXml )
+	{
+		//	Extract the image id:
+		$imageId = sanitizedString( (string)$imageXml->imageId, $databaseConnection );
+		assert( 'isPositiveIntString( $imageId )' );
+		if ( isNotPositiveIntString( $imageId ) ) exit;
+
+		//	Fetch the image associated with this image id:
+		$image = Image::imageByImageId( $imageId, $databaseConnection );
+		assert( 'isValidImage( $image )' );
+		if ( isNotValidImage( $image ) ) exit;
+
+		//	Make sure the album id matches:
+		$imageAlbumId = $image->albumId();
+		assert( '$imageAlbumId === $albumId' );
+		if ( $imageAlbumId !== $albumId ) exit;
+
+		//	Extract the rest of the passed information from the XML object:
+		$imageTitle = sanitizedString( (string)$imageXml->imageTitle, $databaseConnection );
+		$imageDescription = sanitizedString( (string)$imageXml->imageDescription, $databaseConnection );
+		$imageTags = sanitizedString( (string)$imageXml->imageTags, $databaseConnection );
+		$imagePhotographer = sanitizedString( (string)$imageXml->imagePhotographer, $databaseConnection );
+		$imageTimestamp = sanitizedString( (string)$imageXml->imageTimestamp, $databaseConnection );
+		$imageAddress = sanitizedString( (string)$imageXml->imageAddress, $databaseConnection );
+		$imageLatitude = sanitizedString( (string)$imageXml->imageLatitude, $databaseConnection );
+		$imageLongitude = sanitizedString( (string)$imageXml->imageLongitude, $databaseConnection );
+		$imageAltitude = sanitizedString( (string)$imageXml->imageAltitude, $databaseConnection );
+		$imageHeading = sanitizedString( (string)$imageXml->imageHeading, $databaseConnection );
+
+		//	Do some sanity checking on the extracted data:
+		assert( 'isEmptyString( $imageTimestamp ) || ( timestampString( strtotime( $imageTimestamp ) ) === $imageTimestamp )' );
+		if ( isNotEmptyString( $imageTimestamp ) && ( timestampString( strtotime( $imageTimestamp ) ) !== $imageTimestamp ) ) exit;
+
+		assert( 'isEmptyString( $imageLatitude ) || isNumericString( $imageLatitude )' );
+		if ( isNotEmptyString( $imageLatitude ) && isNotNumericString( $imageLatitude ) ) exit;
+
+		assert( 'isEmptyString( $imageLongitude ) || isNumericString( $imageLongitude )' );
+		if ( isNotEmptyString( $imageLongitude ) && isNotNumericString( $imageLongitude ) ) exit;
+
+		assert( 'isEmptyString( $imageAltitude ) || isNumericString( $imageAltitude )' );
+		if ( isNotEmptyString( $imageAltitude ) && isNotNumericString( $imageAltitude ) ) exit;
+
+		assert( 'isEmptyString( $imageHeading ) || isNumericString( $imageHeading )' );
+		if ( isNotEmptyString( $imageHeading ) && isNotNumericString( $imageHeading ) ) exit;
+
+		//	Increment the image number:
+		$imageNumber++;
+	}
+
+	//	Flag success and return:
+	echo 'success'; exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
