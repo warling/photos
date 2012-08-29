@@ -202,6 +202,8 @@ define( 'tooltipResetTableVersionLabel', 'Completely obliterates all version lab
 define( 'tooltipStandardizeLocation', 'standardize this address if possible' );
 define( 'tooltipUsername', 'Your current account name' );
 
+define( 'saxErrorCorrupt', 'Corrupt XML sent by browser: ' );
+
 define( 'helpAlbumUpload',
 pTag.newline.
 'This site will accept individual images in the JPG, GIF and PNG formats, or a standard <a href="http://en.wikipedia.org/wiki/ZIP_%28file_format%29">zip</a> file of images. '.newline.
