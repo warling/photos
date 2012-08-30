@@ -46,6 +46,8 @@ define( 'rightSquareBracket', ']' );
 define( 'asterisk', '*' );
 define( 'bang', '!' );
 define( 'at', '@' );
+define( 'plus', '+' );
+define( 'minus', '-' );
 
 ////////////////////////////////////////////////////////////////////////////////
 
