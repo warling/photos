@@ -1381,27 +1381,57 @@ var AlbumEditImagesPage = new function()
 			{
 				with ( ImageThumbnailsList )
 				{
+					if ( $mostRecentTarget != undefined )
+					{
+						//	Get the newly entered latitude string:
+						var latitude = jQuery.trim( $imageLatitudeControl.val() );
+
+						//	If the latitude is not a plain old number, fire off
+						//	a request to the server to convert it to a decimal
+						//	value and then call back to onLatitudeReturn. Else
+						//	just call onLatitudeReturn directly. No need to
+						//	burden the server unnecessarily...
+						if ( isNaN( Number( latitude ) ) )
+						{
+							$.get( server + '?d=gl&l=' + latitude, ImageLatitudeControl.onLatitudeReturn );
+						}
+						else
+						{
+							ImageLatitudeControl.onLatitudeReturn( latitude );
+						}
+					}
+				}
+			}
+		}
+
+		////////////////////////////////////////////////////////////////////////
+
+		this.onLatitudeReturn = function( latitude )
+		{
+			with ( AlbumEditImagesPage )
+			{
+				with ( ImageThumbnailsList )
+				{
 					var panned = false;
 
 					if ( $mostRecentTarget != undefined )
 					{
-						var latitude = jQuery.trim( $imageLatitudeControl.val() );
+						$imageLatitudeControl.val( latitude );
 
-						$mostRecentTarget.data( 'image' ).imageLatitude = latitude;
+						var data = $mostRecentTarget.data( 'image' );
 
-						if ( e != undefined )
+						data.imageLatitude = latitude;
+
+						var longitude = data.imageLongitude;
+
+						if ( isNumeric( latitude ) && isNumeric( longitude ) )
 						{
-							var longitude = $imageLongitudeControl.val();
+							var location = new google.maps.LatLng( latitude, longitude );
 
-							if ( isNumeric( latitude ) && isNumeric( longitude ) )
-							{
-								var location = new google.maps.LatLng( latitude, longitude );
+							geocoder.geocode( { 'latLng' : location }, ImageLatitudeControl.onAddressReturn );
+							elevator.getElevationForLocations( { 'locations' : [ location ] }, ImageLatitudeControl.onElevationReturn );
 
-								geocoder.geocode( { 'latLng' : location }, ImageLatitudeControl.onAddressReturn );
-								elevator.getElevationForLocations( { 'locations' : [ location ] }, ImageLatitudeControl.onElevationReturn );
-
-								panned = ImageMapControl.panTo( location );
-							}
+							panned = ImageMapControl.panTo( location );
 						}
 					}
 
@@ -1431,7 +1461,6 @@ var AlbumEditImagesPage = new function()
 					}
 					else
 					{
-						alert( status );
 						if ( $imageAddressControl.val() != '' )
 						{
 							var latitude = $imageLatitudeControl.val();

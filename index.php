@@ -75,6 +75,7 @@ define( 'keyAction', 'd' );
 define( 'keyAccessPassword', 'passwordAccess' );
 
 define( 'keyTimestamp', 'ts' );
+define( 'keyLatitudeOrLongitude', 'l' );
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +151,7 @@ define( 'actionDisplayVersionPage', 'displayVersionPage' );
 define( 'actionGetAlbumXml', 'gax' );
 define( 'actionSetAlbumXml', 'sax' );
 define( 'actionGetTimestampXml', 'gtx' );
+define( 'actionGetLatitudeOrLongitude', 'gl' );
 define( 'actionDefault', actionDisplayAlbumSummariesPage );
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -468,6 +470,7 @@ switch ( $action )
 	case actionGetAlbumXml:				getAlbumXml( $user, $databaseConnection ); break;
 	case actionSetAlbumXml:				setAlbumXml( $user, $databaseConnection ); break;
 	case actionGetTimestampXml:			getTimestampXml( $databaseConnection ); break;
+	case actionGetLatitudeOrLongitude:	getLatitudeOrLongitude( $databaseConnection ); break;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2946,6 +2949,121 @@ function getTimestampXml( $databaseConnection )
 
 	echo ( isPositiveInt( $timestamp ) ? timestampString( $timestamp ) : emptyString );
 
+	exit;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+function getLatitudeOrLongitude( $databaseConnection )
+{
+	//	Extract the value:
+	$string = parameter( keyLatitudeOrLongitude, $databaseConnection );
+
+	//	First, strip all the whitespace from the string; I'm assuming the
+	//	only whitespace that will normally make it into a string is spaces;
+	//	anything else would likely be considered malicious. Note that we're
+	//	taking the opportunity to remove any seconds designations as well:
+	$string = str_replace( array( space, '"', '″' ), emptyString, $string );
+
+	//	If it's empty, bug out:
+	if ( isEmptyString( $string ) ) exit;
+
+	//	Extract the direction multiplier (NSEW), which will be either the
+	//	last character in the string (most commonly) or the first character
+	//	in the string. It might also be written as a '+' or '-' sign. If no
+	//	direction is found, assume it to be positive. I've tried to order
+	//	cases from most common to least common:
+	$lastCharacter = lastCharacter( $string );
+	if ( ( $lastCharacter === 'N' ) || ( $lastCharacter === 'n' ) || ( $lastCharacter === 'E' ) || ( $lastCharacter === 'e' ) )
+	{
+		$multiplier = +1.0;
+		$string = substr( $string, 0, strlen( $string ) - 1 );
+	}
+	else if ( ( $lastCharacter === 'S' ) || ( $lastCharacter === 's' ) || ( $lastCharacter === 'W' ) || ( $lastCharacter === 'w' ) )
+	{
+		$multiplier = -1.0;
+		$string = substr( $string, 0, strlen( $string ) - 1 );
+	}
+	else
+	{
+		$firstCharacter = $string[0];
+		if ( isNumericString( $firstCharacter ) )
+		{
+			$multiplier = +1.0;
+		}
+		else if ( $firstCharacter === minus )
+		{
+			$multiplier = -1.0;
+		}
+		else if ( ( $firstCharacter === 'N' ) || ( $firstCharacter === 'n' ) || ( $firstCharacter === 'E' ) || ( $firstCharacter === 'e' ) )
+		{
+			$multiplier = +1.0;
+			$string = substr( $string, 1 );
+		}
+		else if ( ( $firstCharacter === 'S' ) || ( $firstCharacter === 's' ) || ( $firstCharacter === 'W' ) || ( $firstCharacter === 'w' ) )
+		{
+			$multiplier = -1.0;
+			$string = substr( $string, 1 );
+		}
+		else if ( $firstCharacter === plus )
+		{
+			$multiplier = +1.0;
+		}
+		else
+		{
+			exit;
+		}
+	}
+	assert( '( $multiplier === +1.0 ) || ( $multiplier === -1.0 )' );
+
+	//	At this point we have the multiplier and the string, stripped of any NSEW desgination.
+	//	Replace all degree, minute and second designations with colons:
+	$string = str_replace( array( '°', '"', "'", '′', 'deg', 'DEG', 'Deg', 'd', 'D' ), colon, $string );
+
+	//	Now we have the string in the form: "xx:xx:xx.xxx", so snap it at colons:
+	$array = explode( colon, $string );
+
+	//	Convert each array element to its proper numeric representations;
+	//	note that case fallthrough is important for this to work:
+	$minutes = 0.0;
+	$seconds = 0.0;
+	switch ( count( $array ) )
+	{
+		case 3:
+		{
+			$seconds = $array[2];
+			if ( isNonEmptyString( $seconds ) && isNotNumericString( $seconds ) ) exit;
+			$seconds = (double)$seconds;
+			if ( $seconds < 0.0 ) exit;
+			if ( $seconds >= 60.0 ) exit;
+		}
+		case 2:
+		{
+			$minutes = $array[1];
+			if ( isNonEmptyString( $minutes ) && isNotNumericString( $minutes ) ) exit;
+			$minutes = (double)$minutes;
+			if ( $minutes < 0.0 ) exit;
+			if ( $minutes >= 60.0 ) exit;
+		}
+		case 1:
+		{
+			$degrees = $array[0];
+			if ( isNotNumericString( $degrees ) ) exit;
+			$degrees = (double)$degrees;
+			assert( '$degrees >= 0.0' );	//	Taken care of by our +/- multiplier logic
+			if ( $degrees >= 180.0 ) exit;	//	Note that this should be limited to +/- 90 for latitude, but at the moment we don't distinguish!
+			break;
+		}
+		default:
+		{
+			exit;
+		}
+	}
+
+	//	Return the decimal result:
+	echo $multiplier * $degrees + ( $minutes / 60.0 ) + ( $seconds / 3600.0 );
+
+	//	Bug out of the script:
 	exit;
 }
 
