@@ -150,7 +150,7 @@ define( 'actionDisplayVersion', 'v' );
 define( 'actionDisplayVersionPage', 'displayVersionPage' );
 define( 'actionGetAlbumXml', 'gax' );
 define( 'actionSetAlbumXml', 'sax' );
-define( 'actionGetTimestampXml', 'gtx' );
+define( 'actionGetTimestamp', 'gt' );
 define( 'actionGetLatitudeOrLongitude', 'gl' );
 define( 'actionDefault', actionDisplayAlbumSummariesPage );
 
@@ -469,7 +469,7 @@ switch ( $action )
 	case actionDisplayVersionPage:		displayVersionPage( $pageContent, $buttonBarUser, $user, $album, $image, $version, $databaseConnection ); break;
 	case actionGetAlbumXml:				getAlbumXml( $user, $databaseConnection ); break;
 	case actionSetAlbumXml:				setAlbumXml( $user, $databaseConnection ); break;
-	case actionGetTimestampXml:			getTimestampXml( $databaseConnection ); break;
+	case actionGetTimestamp:			getTimestamp( $databaseConnection ); break;
 	case actionGetLatitudeOrLongitude:	getLatitudeOrLongitude( $databaseConnection ); break;
 }
 
@@ -2939,7 +2939,7 @@ function setAlbumXml( $user, $databaseConnection )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-function getTimestampXml( $databaseConnection )
+function getTimestamp( $databaseConnection )
 {
 	$string = parameter( keyTimestamp, $databaseConnection );
 
@@ -3051,7 +3051,7 @@ function getLatitudeOrLongitude( $databaseConnection )
 			if ( isNotNumericString( $degrees ) ) exit;
 			$degrees = (double)$degrees;
 			assert( '$degrees >= 0.0' );	//	Taken care of by our +/- multiplier logic
-			if ( $degrees >= 180.0 ) exit;	//	Note that this should be limited to +/- 90 for latitude, but at the moment we don't distinguish!
+			if ( $degrees >= 180.0 ) exit;	//	Note that this should be limited to +/- 90 for latitude, but at the moment we don't distinguish between latitude and longitude!
 			break;
 		}
 		default:
@@ -3061,7 +3061,7 @@ function getLatitudeOrLongitude( $databaseConnection )
 	}
 
 	//	Return the decimal result:
-	echo $multiplier * $degrees + ( $minutes / 60.0 ) + ( $seconds / 3600.0 );
+	echo $multiplier * ( $degrees + ( $minutes / 60.0 ) + ( $seconds / 3600.0 ) );
 
 	//	Bug out of the script:
 	exit;

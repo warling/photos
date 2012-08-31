@@ -1032,7 +1032,7 @@ var AlbumEditImagesPage = new function()
 					{
 						var value = $imageTimestampCreationControl.val();
 
-						$.get( server + '?d=gtx&ts=' + value, ImageTimestampCreationControl.fromXml );
+						$.get( server + '?d=gt&ts=' + value, ImageTimestampCreationControl.fromXml );
 					}
 				}
 			}
@@ -1102,6 +1102,8 @@ var AlbumEditImagesPage = new function()
 			}
 		}
 
+		////////////////////////////////////////////////////////////////////////
+
 		this.moveMarker = function( e )
 		{
 			with ( AlbumEditImagesPage )
@@ -1135,6 +1137,8 @@ var AlbumEditImagesPage = new function()
 			}
 		}
 
+		////////////////////////////////////////////////////////////////////////
+
 		this.deleteMarker = function( e )
 		{
 			with ( AlbumEditImagesPage )
@@ -1162,6 +1166,8 @@ var AlbumEditImagesPage = new function()
 				}
 			}
 		}
+
+		////////////////////////////////////////////////////////////////////////
 
 		this.addMarker = function( e )
 		{
@@ -1503,27 +1509,57 @@ var AlbumEditImagesPage = new function()
 			{
 				with ( ImageThumbnailsList )
 				{
+					if ( $mostRecentTarget != undefined )
+					{
+						//	Get the newly entered longitude string:
+						var longitude = jQuery.trim( $imageLongitudeControl.val() );
+
+						//	If the longitude is not a plain old number, fire off
+						//	a request to the server to convert it to a decimal
+						//	value and then call back to onLatitudeReturn. Else
+						//	just call onLatitudeReturn directly. No need to
+						//	burden the server unnecessarily...
+						if ( isNaN( Number( longitude ) ) )
+						{
+							$.get( server + '?d=gl&l=' + longitude, ImageLongitudeControl.onLongitudeReturn );
+						}
+						else
+						{
+							ImageLongitudeControl.onLongitudeReturn( longitude );
+						}
+					}
+				}
+			}
+		}
+
+		////////////////////////////////////////////////////////////////////////
+
+		this.onLongitudeReturn = function( longitude )
+		{
+			with ( AlbumEditImagesPage )
+			{
+				with ( ImageThumbnailsList )
+				{
 					var panned = false;
 
 					if ( $mostRecentTarget != undefined )
 					{
-						var longitude = jQuery.trim( $imageLongitudeControl.val() );
+						$imageLongitudeControl.val( longitude );
 
-						$mostRecentTarget.data( 'image' ).imageLongitude = longitude;
+						var data = $mostRecentTarget.data( 'image' );
 
-						if ( e != undefined )
+						data.imageLongitude = longitude;
+
+						var latitude = data.imageLatitude;
+
+						if ( isNumeric( latitude ) && isNumeric( longitude ) )
 						{
-							var latitude = $imageLatitudeControl.val();
+							var location = new google.maps.LatLng( latitude, longitude );
 
-							if ( isNumeric( latitude ) && isNumeric( longitude ) )
-							{
-								var location = new google.maps.LatLng( latitude, longitude );
+							geocoder.geocode( { 'latLng' : location }, ImageLatitudeControl.onAddressReturn );
+							elevator.getElevationForLocations( { 'locations' : [ location ] }, ImageLatitudeControl.onElevationReturn );
 
-								geocoder.geocode( { 'latLng' : location }, ImageLatitudeControl.onAddressReturn );
-								elevator.getElevationForLocations( { 'locations' : [ location ] }, ImageLatitudeControl.onElevationReturn );
-
-								panned = ImageMapControl.panTo( location );
-							}
+							panned = ImageMapControl.panTo( location );
 						}
 					}
 
