@@ -1143,7 +1143,7 @@ class Uploader
 				$keywords = Uploader::iptcValues( $iptc, '2#025' );
 				if ( isNonEmptyArray( $keywords ) )
 				{
-					$xml .= '<IPTCKeywords>'.implode( comma.space, $keywords ).'</IPTCKeywords>';
+					$xml .= '<IPTCKeywords>'.implode( semicolonSpace, $keywords ).'</IPTCKeywords>';
 					$count++;
 				}
 
