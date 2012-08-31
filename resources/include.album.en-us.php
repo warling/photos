@@ -20,7 +20,7 @@ define( 'labelAlbumTimestampCreation', '<span class="accesskey">C</span>reation 
 define( 'labelAlbumTimestampPublication', '<span class="accesskey">P</span>ublication Date &amp; Time' );
 define( 'labelAlbumTitle', '<span class="accesskey">T</span>itle' );
 
-define( 'hintAlbumTags', 'separate tags with semicolons: kitty; fuzzy; smiling' );
+define( 'hintAlbumTags', 'separate tags with semicolons: kitty; fuzzy; happy' );
 
 define( 'accesskeyAlbumDescription', 'd' );
 define( 'accesskeyAlbumDoPublish', 'b' );
